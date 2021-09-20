@@ -1,0 +1,6 @@
+---
+- name: тестовый плейбук
+  hosts: "{{host}}"
+  gather_facts: no
+  roles:
+    - test

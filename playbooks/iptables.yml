@@ -1,0 +1,9 @@
+---
+- name: Обазательная базовая настройка сервера
+  hosts: "{{host}}"
+  # serial: 1
+  vars:
+    acls_dict_for_ansible: {}
+  gather_facts: no
+  roles:
+    - common_iptables

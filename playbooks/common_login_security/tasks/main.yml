@@ -1,0 +1,23 @@
+- name: Установка значения PermitRootLogin no
+  lineinfile:
+   path: /etc/ssh/sshd_config
+   regexp: '^PermitRootLogin'
+   line: "#PermitRootLogin prohibit-password"
+
+- name: Установка значения PasswordAuthentication no
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PasswordAuthentication'
+    line: PasswordAuthentication no
+
+- name: Установка значения PermitEmptyPasswords no
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PermitEmptyPasswords'
+    line: PermitEmptyPasswords no
+
+- name: restart ssh
+  service:
+    name: ssh
+    state: restarted
+

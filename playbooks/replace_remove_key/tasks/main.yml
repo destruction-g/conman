@@ -1,0 +1,13 @@
+---
+- name: "Проверка что новый ключ уже установлен, но процесс замены еще не полностью завершён."
+  set_fact:
+    key_remove_granted: "{{1 if (CONFIG.key_generation_completed and CONFIG.key_install_completed and not CONFIG.key_replace_completed) else 0}}"
+
+- name: "Удалить публичный ключ для пользователя {{ user }}"
+  authorized_key:
+    follow: yes
+    user: "{{ user }}"
+    state: absent
+    manage_dir: yes
+    key: "{{ lookup('file', SETTINGS['KEYS_DIRECTORY'] + '{{ user }}/current/id_rsa.pub') }}"
+  when: key_remove_granted | bool

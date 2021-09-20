@@ -1,0 +1,17 @@
+- name: Обновление репозиториев и установка полезных пакетов
+  apt:
+    update_cache: yes
+    pkg:
+      - net-tools
+      - traceroute
+      - mc
+      - fail2ban
+      - tmux
+      - bash-completion
+      - iptables-persistent
+      - git
+      - screen
+      - curl
+      - rsync
+      - "{{'open-vm-tools' if not CONFIG.ITEM_HOST_TYPE=='dockersites' else 'tmux'}}"
+      - "{{'ntp' if CONFIG.ITEM_HOST_TYPE!='null' else 'tmux'}}"

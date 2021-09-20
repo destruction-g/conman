@@ -1,0 +1,6 @@
+---
+- name: Настройка VPN сервера с нуля
+  hosts: "{{host}}"
+  gather_facts: no
+  roles:
+    - vpn_prepare

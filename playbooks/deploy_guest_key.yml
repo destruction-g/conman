@@ -1,0 +1,8 @@
+---
+- name: Добавление гостевого ключа
+  hosts: "{{host}}"
+  gather_facts: no
+  vars:
+    keys_folders_list: []
+  roles:
+    - deploy_guest_key

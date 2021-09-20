@@ -1,0 +1,28 @@
+# - name: debug
+#   debug:
+#     msg: "{{SETTINGS}}"
+
+- name: "выбор ключа новый / текущий"
+  set_fact:
+    key_type: "{{ 'new' if (CONFIG.key_generation_completed and not CONFIG.key_install_completed and not CONFIG.key_replace_completed) else 'current' }}"
+
+- name: "определение типа установки экслюзивно / добавление"
+  set_fact:
+    exclusive_state:  "{{ 1 if (CONFIG.ITEM_SSH_KEY_EXCLUSIVE | bool ) else 0 }}"
+
+- name: "вывод типа установки"
+  debug:
+    msg: "тип установки {{key_type}}"
+#
+# - name: "вывод типа установки"
+#   debug:
+#     msg: "тип установки {{exclusive_state}}"
+
+- name: "Добавить публичный ключ для пользователя {{user}}"
+  authorized_key:
+    user: "{{user}}"
+    follow: yes
+    key: "{{ lookup('file', SETTINGS['KEYS_DIRECTORY'] + '{{user}}/{{key_type}}/id_rsa.pub') }}"
+    exclusive: "{{exclusive_state}}"
+    state: present
+    manage_dir: yes

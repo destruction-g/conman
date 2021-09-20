@@ -1,0 +1,14 @@
+- name: set fact составить список папок с ключами
+  set_fact:
+    keys_folders_list: "{{ keys_folders_list }} + [ '{{SETTINGS['KEYS_DIRECTORY']}}guest_keys/{{ item }}/*' ]"
+  with_items: "{{CONFIG.ITEM_GUEST_KEYS}}"
+
+- name: "Добавить гостевой публичный ключ для пользователя {{ user }}"
+  authorized_key:
+    user: "{{ user }}"
+    follow: yes
+    key: "{{ lookup('file', item) }}"
+    exclusive: false
+    state: present
+    manage_dir: yes
+  with_fileglob: "{{ keys_folders_list }}"

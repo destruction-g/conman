@@ -1,0 +1,6 @@
+---
+- name: "Установка ключа для пользователя {{user}}"
+  hosts: "{{host}}"
+  gather_facts: no
+  roles:
+    - common_deploy_key

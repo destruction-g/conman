@@ -1,0 +1,36 @@
+- name: "вывод конфига для {{host}}"
+  debug:
+    msg: "{{ CONFIG }}"
+
+#
+# # style 1 using filter
+# - set_fact:
+#     tomcat_value: "{{ (filepath == '/var/opt/tomcat_1') | ternary(tomcat_1_value, tomcat_2_value) }}"
+# # style 2
+# - set_fact:
+#     tomcat_value: "{{ tomcat_1_value if (filepath == '/var/opt/tomcat_1') else tomcat_2_value }}"
+
+- name: выбор ключа новый / текущий
+  set_fact:
+    key_type: "{{ 'new' if (CONFIG.key_generation_completed and CONFIG.key_install_completed and not CONFIG.key_replace_completed) else 'current' }}"
+
+- name: "вывод типа ключа"
+  debug:
+    msg: "брать ключ {{key_type}}"
+
+# - name: "Сгенерировать словарь ACL для {{inventory_hostname}}"
+#   local_action: "shell python ../aux/helper.py generate_acls_dict_for_ansible {{inventory_hostname}}"
+#   register: result
+#
+# - name: set fact acls_dict_for_ansible
+#   set_fact:
+#     acls_dict_for_ansible: "{{ result.stdout }}"
+#
+# - name: "вывод acl для {{inventory_hostname}}"
+#   debug:
+#     msg: "{{acls_dict_for_ansible}}"
+#
+- name: debug
+  debug:
+    msg: "{{vars.ansible_play_hosts_all}}"
+  delegate_to: localhost

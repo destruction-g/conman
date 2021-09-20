@@ -1,0 +1,91 @@
+[linux]
+proxmoxdub03 ansible_hostname=192.168.79.103
+vproxyh02 ansible_hostname=192.168.180.182
+vproxyh03 ansible_hostname=192.168.180.183
+bsdub01 ansible_hostname=192.168.80.103
+zabbix ansible_hostname=192.168.180.211
+ansible ansible_hostname=192.168.180.220
+vilkova.ru ansible_hostname=94.130.215.29
+itap-backend ansible_hostname=192.168.29.3
+proxmoxdub02 ansible_hostname=192.168.79.104
+vproxyh01 ansible_hostname=192.168.180.181
+docker01 ansible_hostname=192.168.180.209
+arcconf ansible_hostname=192.168.180.210
+proxmoxdub01 ansible_hostname=192.168.79.101
+lidstroytech.ru ansible_hostname=94.130.215.22
+vpspare02 ansible_hostname=178.162.197.163
+proxmoxlw01 ansible_hostname=178.162.212.132
+proxmoxdub05 ansible_hostname=192.168.79.105
+radarproxmox02.meckil.ru ansible_hostname=178.238.118.170
+ruku.org ansible_hostname=94.130.215.20
+itap.comenergo.ru ansible_hostname=193.162.143.183
+radarvpn01.meckil.ru ansible_hostname=65.108.56.156
+proxmoxspare01 ansible_hostname=89.208.146.175
+proxmoxdub04 ansible_hostname=192.168.79.106
+radarproxmox01.meckil.ru ansible_hostname=162.55.232.156
+vpspare01 ansible_hostname=89.208.146.177
+proxmoxhz01 ansible_hostname=192.168.111.101
+infratechnology.ru ansible_hostname=94.130.215.24
+
+[proxmoxstandalone]
+proxmoxdub03 ansible_hostname=192.168.79.103
+proxmoxlw01 ansible_hostname=178.162.212.132
+proxmoxspare01 ansible_hostname=89.208.146.175
+proxmoxhz01 ansible_hostname=192.168.111.101
+
+[veeam-servers]
+vproxyh02 ansible_hostname=192.168.180.182
+vproxyh03 ansible_hostname=192.168.180.183
+bsdub01 ansible_hostname=192.168.80.103
+veeam ansible_hostname=192.168.80.201
+vpdub01 ansible_hostname=192.168.80.230
+vproxyh01 ansible_hostname=192.168.180.181
+vpcatfab01 ansible_hostname=192.168.53.203
+vpangar03 ansible_hostname=192.168.72.205
+vproxydc02 ansible_hostname=192.168.180.245
+vpspare02 ansible_hostname=178.162.197.163
+vphz02 ansible_hostname=85.10.200.245
+vptisnum01 ansible_hostname=192.168.52.202
+vpdc04rip ansible_hostname=192.168.180.194
+vphz01 ansible_hostname=192.168.109.201
+vpspare01 ansible_hostname=89.208.146.177
+vpnik01 ansible_hostname=192.168.51.95
+vpdc01 ansible_hostname=192.168.180.252
+
+[sites]
+vilkova.ru ansible_hostname=94.130.215.29
+lidstroytech.ru ansible_hostname=94.130.215.22
+ruku.org ansible_hostname=94.130.215.20
+infratechnology.ru ansible_hostname=94.130.215.24
+
+[windows]
+veeam ansible_hostname=192.168.80.201
+vpdub01 ansible_hostname=192.168.80.230
+vpcatfab01 ansible_hostname=192.168.53.203
+vpangar03 ansible_hostname=192.168.72.205
+vproxydc02 ansible_hostname=192.168.180.245
+vphz02 ansible_hostname=85.10.200.245
+vptisnum01 ansible_hostname=192.168.52.202
+vpdc04rip ansible_hostname=192.168.180.194
+vphz01 ansible_hostname=192.168.109.201
+vpnik01 ansible_hostname=192.168.51.95
+vpdc01 ansible_hostname=192.168.180.252
+
+[proxmoxdub]
+proxmoxdub02 ansible_hostname=192.168.79.104
+proxmoxdub01 ansible_hostname=192.168.79.101
+proxmoxdub05 ansible_hostname=192.168.79.105
+proxmoxdub04 ansible_hostname=192.168.79.106
+
+[python2]
+arcconf ansible_hostname=192.168.180.210
+
+[radarproxmox]
+radarproxmox02.meckil.ru ansible_hostname=178.238.118.170
+radarproxmox01.meckil.ru ansible_hostname=162.55.232.156
+
+[radar-servers]
+radarproxmox02.meckil.ru ansible_hostname=178.238.118.170
+radarvpn01.meckil.ru ansible_hostname=65.108.56.156
+radarproxmox01.meckil.ru ansible_hostname=162.55.232.156
+

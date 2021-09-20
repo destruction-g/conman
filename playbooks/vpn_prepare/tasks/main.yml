@@ -1,0 +1,50 @@
+- name: debug
+  debug:
+    msg: "{{ CONFIG }}"
+
+- name: Update repositories cache and install packages
+  apt:
+    update_cache: yes
+    pkg:
+      - pptpd
+
+- name: Enable ip forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    sysctl_set: yes
+
+- name: Give new hostname
+  hostname:
+    name: "{{CONFIG.ITEM_HOST_NAME}}"
+
+- name: Create pptpd-options file
+  template:
+    src: pptpd-options.template
+    dest: /etc/ppp/pptpd-options
+    owner: root
+    group: root
+  when: CONFIG.VPN_TYPE  == 'pptp'
+
+- name: Create pptpd.conf  file
+  template:
+    src: pptpd.conf.template
+    dest: /etc/pptpd.conf
+    owner: root
+    group: root
+  when: CONFIG.VPN_TYPE  == 'pptp'
+
+- name: Create chap-secrets file
+  template:
+    src: chap-secrets.template
+    dest: /etc/ppp/chap-secrets
+    owner: root
+    group: root
+  when: CONFIG.VPN_TYPE  == 'pptp'
+
+- name: enable pptpd
+  command: systemctl enable pptpd
+  when: CONFIG.VPN_TYPE  == 'pptp'
+
+- name: reboot the machine to apply settings
+  reboot:

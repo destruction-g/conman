@@ -1,0 +1,9 @@
+---
+- name: Добавление ключа
+  hosts: "{{host}}"
+  gather_facts: no
+  become: yes
+  become_method: su
+  become_user: root
+  roles:
+    - common_deploy_key

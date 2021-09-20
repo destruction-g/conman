@@ -1,0 +1,90 @@
+- name: "Сгенерировать словарь ACL для {{inventory_hostname}}"
+  local_action: "shell python3 ../aux/helper.py generate_ansible_iptables_acls_array {{inventory_hostname}}"
+  register: result
+
+- name: set fact acls_dict_for_ansible
+  set_fact:
+    acls_dict_for_ansible: "{{ acls_dict_for_ansible | combine({inventory_hostname: result.stdout}) }}"
+
+- name: set fact acls_dict_for_ansible_current_inventory_hostname
+  set_fact:
+    current_inventory_hostname: "{{acls_dict_for_ansible[inventory_hostname]}}"
+
+- name: netfilter-persistent flush
+  ansible.builtin.shell:
+    cmd: netfilter-persistent flush
+
+- name: Allow related and established connections
+  ansible.builtin.iptables:
+    chain: INPUT
+    ctstate: ESTABLISHED,RELATED
+    jump: ACCEPT
+
+- name: Allow icmp type 8 echo requests
+  ansible.builtin.iptables:
+    chain: INPUT
+    protocol: icmp
+    icmp_type: "{{ item }}"
+    jump: ACCEPT
+    comment: "Allow icmp type {{ item }} echo requests"
+  with_items: [ "3", "4", "8", "11" ]
+
+- name: Применить правила iptables
+  ansible.builtin.iptables:
+    chain: INPUT
+    protocol: "{{item.service_protocol | default(omit)}}"
+    source: "{{item.source_address | default(omit)}}"
+    destination: "{{ item.service_destination_ip | default(item.item_ip_address) }}"
+    destination_port: "{{item.service_destination_port | default(omit) }}"
+    jump: ACCEPT
+    comment: "{{item.full_comment}}"
+  with_items: "{{ current_inventory_hostname.data }}"
+  when: current_inventory_hostname.success
+
+- name: Set the policy for the INPUT chain to DROP
+  ansible.builtin.iptables:
+    chain: INPUT
+    policy: DROP
+
+- name: Set the policy for the FORWARD chain to DROP
+  ansible.builtin.iptables:
+    chain: FORWARD
+    policy: DROP
+  when: CONFIG.ITEM_FORWARD_POLICY_DROP
+
+- name: Enable VPN NAT Passthru
+  sysctl:
+    name: net.netfilter.nf_conntrack_helper
+    value: '1'
+    sysctl_set: yes
+  when: not CONFIG.ITEM_FORWARD_POLICY_DROP
+
+- name: Enable net.ipv4.ip_forward
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    sysctl_set: yes
+  when: not CONFIG.ITEM_FORWARD_POLICY_DROP
+
+- name: Добавить модуль nf_nat_pptp
+  lineinfile:
+   path: /etc/modules
+   regexp: '^nf_nat_pptp'
+   line: "nf_nat_pptp"
+  when: not CONFIG.ITEM_FORWARD_POLICY_DROP
+
+- name: Добавить модуль nf_conntrack_pptp
+  lineinfile:
+   path: /etc/modules
+   regexp: '^nf_conntrack_pptp'
+   line: "nf_conntrack_pptp"
+  when: not CONFIG.ITEM_FORWARD_POLICY_DROP
+
+- name: netfilter-persistent save
+  ansible.builtin.shell:
+    cmd: netfilter-persistent save
+
+- name: netfilter-persistent reload
+  ansible.builtin.shell:
+    cmd: netfilter-persistent reload
+#  delegate_to: localhost

@@ -1,0 +1,3 @@
+option /etc/ppp/pptpd-options
+logwtmp
+connections 1
