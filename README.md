@@ -1,8 +1,21 @@
 # conman
 **conman** - это тулза с набором плейбуков ```ansible``` для удаленной настройки тачек. 
 
+
+### Settings
+Глобальные настройки тулзы ```settings.conf```.
+``` 
+{
+   "ANSIBLE_INVENTORY_FILE_NAME": "/root/conman/inventory/static-inventory",
+   "CONFIGS_DIRECTORY": "/root/.config/conman/",
+   "CONFIGURATION_ITEMS_DIRECTORY": "/root/.config/conman/configuration_items/",
+   "KEYS_DIRECTORY": "/root/.config/conman/files/keys/"
+}
+```
+
+
 ### Configuration
-Конфигурация тулзы расположена домашней директории ```.config/conman```.
+Конфигурация тулзы расположена домашней директории ```/root/.config/conman```.
 ```
 ├── acls
 ├── configuration_items
