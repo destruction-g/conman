@@ -2,7 +2,15 @@
 **conman** - это тулза с набором плейбуков ```ansible``` для удаленной настройки тачек. 
 
 
-### Settings
+## Installation 
+``` git clone https://github.com/destruction-g/conman```
+
+
+## Usage
+Запустить тулзу ```./folding.sh```
+Логи ```./folding.log```
+
+## Settings
 Глобальные настройки тулзы ```settings.conf```.
 ``` 
 {
@@ -14,7 +22,7 @@
 ```
 
 
-### Configuration
+## Configuration
 Конфигурация тулзы расположена домашней директории ```/root/.config/conman```.
 ```
 ├── acls
