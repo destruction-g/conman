@@ -46,26 +46,27 @@ else
   exit
 fi
 
-status_busy "Обновление файла /etc/hosts"
-if (
-    ansible-playbook -i inventory playbooks/rewrite_hosts_file.yml >> folding.log 2>> folding.log
-    ); then status_done
+status_busy "Update local /etc/hosts file"
+
+if (ansible-playbook playbooks/rewrite_hosts_file.yml --extra-vars "host=localhost" >> folding.log 2>> folding.log); then status_done
 else
   status_failed
   exit
 fi
 
-if [[ $1 == 'updatehosts' ]]
-then
-  status_busy "Updating /etc/hosts files"
-  if (
-      ansible-playbook -i inventory playbooks/rewrite_hosts_file.yml >> folding.log 2>> folding.log
-      ); then status_done
-  else
-    status_failed
-    exit
-  fi
-fi
+
+case "$1" in
+    'updatehosts')
+        status_busy "Updating /etc/hosts files"
+        if (
+            ansible-playbook all -i inventory playbooks/rewrite_hosts_file.yml --extra-vars "host=$([ -z $ITEM ] && $ITEM || 'localhost' )" >> folding.log 2>> folding.log
+            ); then status_done 
+        else
+            status_failed
+            exit
+        fi
+        ;;
+esac
 
 if [[ $1 == 'guestkeys' ]]
   then
