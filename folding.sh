@@ -37,22 +37,27 @@ fi
 
 ITEM=$2
 
-status_busy "Обновление static inventory"
-if (
-    python3 ./aux/helper.py write_static_inventory_file_for_ansible >> folding.log 2>> folding.log
-    ); then status_done
-else
-  status_failed
-  exit
-fi
+status_busy "Building static inventory"
+python3 ./aux/helper.py write_static_inventory_file_for_ansible >> folding.log 2>> folding.log
+[ $? -eq 0 ] && status_done || { status_failed; exit 1; }
+
+# if (
+#     python3 ./aux/helper.py write_static_inventory_file_for_ansible >> folding.log 2>> folding.log
+#     ); then status_done
+# else
+#   status_failed
+#   exit
+# fi
 
 status_busy "Update local /etc/hosts file"
+ansible-playbook playbooks/rewrite_hosts_file.yml --extra-vars "host=localhost" >> folding.log 2>> folding.log
+[ $? -eq 0 ] && status_done || { status_failed; exit 1; }
 
-if (ansible-playbook playbooks/rewrite_hosts_file.yml --extra-vars "host=localhost" >> folding.log 2>> folding.log); then status_done
-else
-  status_failed
-  exit
-fi
+# if (ansible-playbook playbooks/rewrite_hosts_file.yml --extra-vars "host=localhost" >> folding.log 2>> folding.log); then status_done
+# else
+#   status_failed
+#   exit
+# fi
 
 case "$1" in
     'updatehosts')
