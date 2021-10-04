@@ -54,12 +54,24 @@ class configuration:
                 configuration_item_dict["ITEM_IP_ADDRESS"] = socket.gethostbyname(configuration_item_hostname)
             self.configuration["configuration_items"][configuration_item_hostname].update(configuration_item_dict)
 
+    def get_target_hosts(self):
+        out = ["127.0.0.1"];
+        if "configuration_items" not in self.configuration:
+            return out
+
+        for item in self.configuration["configuration_items"].values():
+            print(item)
+            if "ITEM_IP_ADDRESS" in item:
+                out.append(item["ITEM_IP_ADDRESS"]) 
+        
+        return out;
+
     def print(self):
         for element in self.configuration["configuration_items"]:
             print(element,  self.configuration["configuration_items"][element])
 
     # рефакторинг
-    # эта функция выдает массив словарей конфигураций для чистки файла hosts
+    # эта функция выдает массив словаре конфигураций для чистки файла hosts
     def generate_configuration_items_dict(self):
         configuration_items_dict = {}
         try:
@@ -218,8 +230,9 @@ class configuration:
                                             ansible_iptables_acls_array.append(self.compile_ansible_acl_element_dict(configuration_item_hostname, service_dict, source_dict, full_comment_append))
                                     else:
                                         return {"success": False, 'reason': group_result['reason']}
-                                        # print("Ошибка заполнения элемента group:", group_result['reason'])
                                         exit(1)
+
         if not ansible_iptables_acls_array:
             return {"success": False, 'reason': "Массив пуст"}
+
         return {"success": True, 'data': ansible_iptables_acls_array}

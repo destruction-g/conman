@@ -43,11 +43,6 @@ if parameters:
             else:
                 keys_directory = {"success": False, "reason": "empty answer"}
             print(keys_directory)
-
-        if action == "get_target_hosts":
-            hosts = configuration.get_target_hosts()
-            print(hosts)
-
     except Exception as e:
         print("Exception - ", traceback.format_exc())
         exit(1)
