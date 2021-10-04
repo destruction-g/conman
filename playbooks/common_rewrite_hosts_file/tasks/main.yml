@@ -1,33 +1,16 @@
-# - name: "Сгенерировать массив для очистки файла hosts"
-#   local_action: "shell python3 ../aux/helper.py generate_configuration_items_dict"
-#   register: result
-#
-# - name: set fact configs_dict
-#   set_fact:
-#     configuration_items_dict: "{{ result.stdout }}"
-#
-# - name: удаление старых значений в файле /etc/hosts
-#   lineinfile:
-#    path: /etc/hosts
-#    regexp: "{{ item }}"
-#    state: absent
-#   delegate_to: localhost
-#   with_items: "{{configuration_items_dict.data}}"
-#   when: configuration_items_dict.success
-
-- name: "Сгенерировать массив новых данных для файла hosts"
+- name: "Generate new data in /etc/hosts {{inventory_hostname}}"
   local_action: "shell python3 ../aux/helper.py generate_hosts_file_dict"
   register: result
 
-- name: "вывод конфига для {{host}}"
+- name: "Config was generated"
   debug:
     msg: "{{ result.stdout }}"
 
-- name: set fact hosts_file_array
+- name: "Set fact hosts_file_array"
   set_fact:
     hosts_file_dict: "{{ result.stdout }}"
 
-- name: удаление старых значений в файле /etc/hosts
+- name: "Removing old values from /etc/hosts file"
   lineinfile:
    path: /etc/hosts
    regexp: "{{ item.key }}"
@@ -35,11 +18,10 @@
   with_dict: "{{hosts_file_dict.data}}"
   when: hosts_file_dict.success
 
-
-- name: подстановка новых значений в файл /etc/hosts
+- name: "Setting new values into /etc/hosts file"
   lineinfile:
    path: /etc/hosts
-#   regexp: "{{ item.value }}"
    line: "{{ item.value }} {{ item.key}}"
   with_dict: "{{hosts_file_dict.data}}"
   when: hosts_file_dict.success
+

@@ -1,8 +1,9 @@
 #!/bin/bash
-RED='\033[0;31m'       #  ${RED}      # красный цвет знаков
-GREEN='\033[0;32m'     #  ${GREEN}    # зелёный цвет знаков
-CYAN='\033[0;36m'       #  ${CYAN}      # цвет морской волны знаков
-YELLOW='\033[0;33m'     #  ${YELLOW}    # желтый цвет знаков
+
+RED='\033[0;31m'       #  ${RED}
+GREEN='\033[0;32m'     #  ${GREEN}
+CYAN='\033[0;36m'      #  ${CYAN}
+YELLOW='\033[0;33m'    #  ${YELLOW}
 NOCOL=$(tput sgr0)
 STATUS_POSITION="\033[60G"
 
@@ -35,7 +36,6 @@ fi
 
 ITEM=$2
 
-
 status_busy "Обновление static inventory"
 if (
     python3 ./aux/helper.py write_static_inventory_file_for_ansible >> folding.log 2>> folding.log
@@ -47,13 +47,12 @@ fi
 
 status_busy "Обновление файла /etc/hosts"
 if (
-    ansible-playbook playbooks/rewrite_hosts_file.yml >> folding.log 2>> folding.log
+    ansible-playbook -i inventory playbooks/rewrite_hosts_file.yml >> folding.log 2>> folding.log
     ); then status_done
 else
   status_failed
   exit
 fi
-
 
 if [[ $1 == 'guestkeys' ]]
   then
@@ -124,12 +123,11 @@ then
   fi
 fi
 
-
 if [[ $1 == 'iptables' ]]
 then
   status_busy "Применить iptables"
   if (
-      ansible-playbook -i inventory playbooks/iptables.yml --extra-vars "host=$ITEM" >> folding.log 2>> folding.log
+     ansible-playbook -i inventory playbooks/iptables.yml --extra-vars "host=$ITEM" >> folding.log 2>> folding.log
       ); then status_done
   else
     status_failed
@@ -137,11 +135,8 @@ then
   fi
 fi
 
-
-
-
 if [[ $1 == 'test' ]]
   then
     ansible-playbook -i inventory playbooks/test.yml --extra-vars "host=$ITEM" #-vvvvv
     exit
-fi
+fi 
