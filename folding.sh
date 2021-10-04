@@ -58,8 +58,9 @@ fi
 case "$1" in
     'updatehosts')
         status_busy "Updating /etc/hosts files"
+        host=[ -z $ITEM ] && $ITEM || "localhost"
         if (
-            ansible-playbook all -i inventory playbooks/rewrite_hosts_file.yml --extra-vars "host=$([ -z $ITEM ] && $ITEM || 'localhost' )" >> folding.log 2>> folding.log
+            ansible-playbook all -i inventory playbooks/rewrite_hosts_file.yml --extra-vars "host=$host" >> folding.log 2>> folding.log
             ); then status_done 
         else
             status_failed
