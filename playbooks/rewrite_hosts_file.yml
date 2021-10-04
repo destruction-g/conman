@@ -1,6 +1,6 @@
 ---
-- name: подготовка файла /etc/hosts
-  hosts: localhost
+- name: Prepare /etc/hosts file
+  hosts: all 
   gather_facts: no
   roles:
     - common_rewrite_hosts_file
