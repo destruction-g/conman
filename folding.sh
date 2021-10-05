@@ -41,102 +41,53 @@ status_busy "Building static inventory"
 python3 ./aux/helper.py write_static_inventory_file_for_ansible >> folding.log 2>> folding.log
 [ $? -eq 0 ] && status_done || { status_failed; exit 1; }
 
-# if (
-#     python3 ./aux/helper.py write_static_inventory_file_for_ansible >> folding.log 2>> folding.log
-#     ); then status_done
-# else
-#   status_failed
-#   exit
-# fi
-
 status_busy "Update local /etc/hosts file"
 ansible-playbook playbooks/rewrite_hosts_file.yml --extra-vars "host=localhost" >> folding.log 2>> folding.log
 [ $? -eq 0 ] && status_done || { status_failed; exit 1; }
 
-# if (ansible-playbook playbooks/rewrite_hosts_file.yml --extra-vars "host=localhost" >> folding.log 2>> folding.log); then status_done
-# else
-#   status_failed
-#   exit
-# fi
-
 case "$1" in
     'updatehosts')
+        [ -z $ITEM ] && HOST="localhost" || HOST=$ITEM
         status_busy "Updating /etc/hosts files"
-        [ -z $ITEM ] && host="localhost" || host=$ITEM
-        if (
-            ansible-playbook -i inventory playbooks/rewrite_hosts_file.yml --extra-vars "host=$host" >> folding.log 2>> folding.log
-            ); then status_done 
-        else
-            status_failed
-            exit
-        fi
+        ansible-playbook -i inventory playbooks/rewrite_hosts_file.yml --extra-vars "host=$HOST" >> folding.log 2>> folding.log
+        [ $? -eq 0 ] && status_done || { status_failed; exit 1; }
         ;;
     'guestkeys')
-        status_busy "Установка гостевых ключей"
-        if (
-            if [[ $3 ]]
-            then
-                FOR_USER=$3
-            else
-                FOR_USER=root
-             fi
-            ansible-playbook -i inventory playbooks/deploy_guest_key.yml --extra-vars "host=$ITEM ansible_user=root user=$FOR_USER" #-vvvvv
-            ); then status_done
-        else
-          status_failed
-          exit
-        fi
+        status_busy "Installing guest keys"
+        [ -z $3 ] && FOR_USER=root || FOR_USER=$3
+        ansible-playbook -i inventory playbooks/deploy_guest_key.yml --extra-vars "host=$ITEM ansible_user=root user=$FOR_USER" #-vvvvv
+        [ $? -eq 0 ] && status_done || { status_failed; exit 1; }
         ;;
     'deploykey')
-        read -p "    Введите пароль для пользователя root:" -s ANSIBLE_PASSWORD
-        status_done
-        status_busy "Установка ключа для пользователя root"
-        if ( ansible-playbook -i inventory playbooks/deploy_key.yml --extra-vars "host=$ITEM ansible_user=root user=root ansible_password=$ANSIBLE_PASSWORD" >> folding.log 2>> folding.log
-           ); then status_done 
-        else
-            status_failed
-            exit
-        fi
+        read -p "    Enter password for root user:" -s ANSIBLE_PASSWORD
+        status_done 
+        status_busy "Installing keys for root user"
+        ansible-playbook -i inventory playbooks/deploy_key.yml --extra-vars "host=$ITEM ansible_user=root user=root ansible_password=$ANSIBLE_PASSWORD" >> folding.log 2>> folding.log
+        [ $? -eq 0 ] && status_done || { status_failed; exit 1; }
         ;;
     'deploykeysudo')
-        read -p "    Введите имя пользователя (не root):" ANSIBLE_USER
-        read -p "    Введите пароль пользователя:" -s ANSIBLE_PASSWORD
+        read -p "    Enter username (not root):" ANSIBLE_USER
+        read -p "    Enter password:" -s ANSIBLE_PASSWORD
         status_done
-        read -p "    Введите пароль root:" -s ANSIBLE_BECOME_PASS
+        read -p "    Enter password for root user:" -s ANSIBLE_BECOME_PASS
         status_done
-        status_busy "Установка ключа для пользователя root с помощью sudo"
-        # BECOME="become=yes become_method=su become_user=root"
-        VARS="host=$ITEM ansible_user=$ANSIBLE_USER user=root ansible_password=$ANSIBLE_PASSWORD ansible_become_pass=$ANSIBLE_BECOME_PASS"
-        if (
-            ansible-playbook -i inventory playbooks/deploy_key_sudo.yml --extra-vars "$VARS" >> folding.log 2>> folding.log
-            ); then status_done
-        else
-          status_failed
-          exit
-        fi
+        status_busy "Installing key for root user with sudo"
+        EXTRA_VARS="host=$ITEM ansible_user=$ANSIBLE_USER user=root ansible_password=$ANSIBLE_PASSWORD ansible_become_pass=$ANSIBLE_BECOME_PASS"
+        ansible-playbook -i inventory playbooks/deploy_key_sudo.yml --extra-vars "$EXTRA_VARS" >> folding.log 2>> folding.log
+        [ $? -eq 0 ] && status_done || { status_failed; exit 1; }
         ;;
     'vpnprepare')
         ansible-playbook -i inventory playbooks/vpn.yml --extra-vars "host=$ITEM" 
         ;;
     'primary')
-        status_busy "Обазательная базовая настройка сервера"
-        if (
-            ansible-playbook -i inventory playbooks/primary.yml --extra-vars "host=$ITEM" >> folding.log 2>> folding.log
-        ); then status_done
-        else
-            status_failed
-            exit
-        fi
+        status_busy "Required basic setting of server"
+        ansible-playbook -i inventory playbooks/primary.yml --extra-vars "host=$ITEM" >> folding.log 2>> folding.log
+        [ $? -eq 0 ] && status_done || { status_failed; exit 1; }
         ;;
     'iptables')
-        status_busy "Применить iptables"
-        if (
-            ansible-playbook -i inventory playbooks/iptables.yml --extra-vars "host=$ITEM" >> folding.log 2>> folding.log
-        ); then status_done
-        else
-            status_failed
-            exit
-        fi
+        status_busy "Accepting iptables rules"
+        ansible-playbook -i inventory playbooks/iptables.yml --extra-vars "host=$ITEM" >> folding.log 2>> folding.log
+        [ $? -eq 0 ] && status_done || { status_failed; exit 1; }
         ;;
     'test')
         ansible-playbook -i inventory playbooks/test.yml --extra-vars "host=$ITEM" #-vvvvv
