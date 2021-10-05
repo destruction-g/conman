@@ -1,12 +1,12 @@
-- name: "Сгенерировать словарь ACL для {{inventory_hostname}}"
+- name: "Generate dictionary ACL for {{inventory_hostname}}"
   local_action: "shell python3 ../src/helper.py generate_ansible_iptables_acls_array {{inventory_hostname}}"
   register: result
 
-- name: set fact acls_dict_for_ansible
+- name: Set fact acls_dict_for_ansible
   set_fact:
     acls_dict_for_ansible: "{{ acls_dict_for_ansible | combine({inventory_hostname: result.stdout}) }}"
 
-- name: set fact acls_dict_for_ansible_current_inventory_hostname
+- name: Set fact acls_dict_for_ansible_current_inventory_hostname
   set_fact:
     current_inventory_hostname: "{{acls_dict_for_ansible[inventory_hostname]}}"
 
@@ -20,16 +20,16 @@
     ctstate: ESTABLISHED,RELATED
     jump: ACCEPT
 
-- name: Allow icmp type 8 echo requests
-  ansible.builtin.iptables:
-    chain: INPUT
-    protocol: icmp
-    icmp_type: "{{ item }}"
-    jump: ACCEPT
-    comment: "Allow icmp type {{ item }} echo requests"
-  with_items: [ "3", "4", "8", "11" ]
+# - name: Allow icmp type 8 echo requests
+#   ansible.builtin.iptables:
+#     chain: INPUT
+#     protocol: icmp
+#     icmp_type: "{{ item }}"
+#     jump: ACCEPT
+#     comment: "Allow icmp type {{ item }} echo requests"
+#   with_items: [ "3", "4", "8", "11" ]
 
-- name: Применить правила iptables
+- name: Accept iptables rules
   ansible.builtin.iptables:
     chain: INPUT
     protocol: "{{item.service_protocol | default(omit)}}"
@@ -66,14 +66,14 @@
     sysctl_set: yes
   when: not CONFIG.ITEM_FORWARD_POLICY_DROP
 
-- name: Добавить модуль nf_nat_pptp
+- name: Add nf_nat_pptp module
   lineinfile:
    path: /etc/modules
    regexp: '^nf_nat_pptp'
    line: "nf_nat_pptp"
   when: not CONFIG.ITEM_FORWARD_POLICY_DROP
 
-- name: Добавить модуль nf_conntrack_pptp
+- name: Add nf_conntrack_pptp module
   lineinfile:
    path: /etc/modules
    regexp: '^nf_conntrack_pptp'
@@ -87,4 +87,3 @@
 - name: netfilter-persistent reload
   ansible.builtin.shell:
     cmd: netfilter-persistent reload
-#  delegate_to: localhost
