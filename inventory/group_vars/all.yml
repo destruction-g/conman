@@ -1,6 +1,6 @@
 ansible_python_interpreter: /usr/bin/python3
 SETTINGS: "{{ lookup('file', '../settings.json') | from_json }}"
-DEFAULTS: "{{ lookup('file', os.path.expandvars(SETTINGS['CONFIGS_DIRECTORY']) + '/defaults') | from_json }}"
-ITEM_CONFIG: "{{ lookup('file', os.path.expandvars(SETTINGS['CONFIGS_DIRECTORY']) + 'configuration_items/{{ inventory_hostname }}') | from_json }}"
-KEY_REPLACE_STATS: "{{ lookup('file', os.path.expandvars(SETTINGS['CONFIGS_DIRECTORY']) + 'key_replace_stats') | from_json }}"
+DEFAULTS: "{{ lookup('file', SETTINGS['CONFIGS_DIRECTORY']) + '/defaults.json') | from_json }}"
+ITEM_CONFIG: "{{ lookup('file', SETTINGS['CONFIGS_DIRECTORY'] + 'configuration_items/{{ inventory_hostname }}.json') | from_json }}"
+KEY_REPLACE_STATS: "{{ lookup('file', SETTINGS['CONFIGS_DIRECTORY'] + 'key_replace_stats.json') | from_json }}"
 CONFIG: "{{ DEFAULTS | combine (ITEM_CONFIG) | combine (KEY_REPLACE_STATS)}}"
