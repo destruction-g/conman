@@ -12,9 +12,12 @@ except Exception as e:
 if parameters:
     configuration = configuration()
     try:
+        # for debug
+        if action == "print":
+            configuration.print()
+
         if action == "write_static_inventory_file_for_ansible":
             configuration.write_static_inventory_file_for_ansible()
-
         if action == "generate_ansible_iptables_acls_array":
             inventory_hostname = str(sys.argv[2])
             ansible_iptables_acls_array = configuration.generate_ansible_iptables_acls_array(inventory_hostname)
