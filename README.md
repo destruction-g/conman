@@ -15,7 +15,9 @@ edit **settings.json** with your favorite editor
 
 
 ## Settings
-Глобальные настройки тулзы ```settings.json```.
+Глобальные настройки тулзы ```settings.json```.  
+
+*поддерживается только $HOME*
 ``` 
 {
     "ANSIBLE_INVENTORY_FILE_NAME": "${HOME}/src/github/destruction-g/conman/inventory/static-inventory",
