@@ -1,5 +1,5 @@
 - name: "Сгенерировать словарь ACL для {{inventory_hostname}}"
-  local_action: "shell python3 ../aux/helper.py generate_ansible_iptables_acls_array {{inventory_hostname}}"
+  local_action: "shell python3 ../src/helper.py generate_ansible_iptables_acls_array {{inventory_hostname}}"
   register: result
 
 - name: set fact acls_dict_for_ansible

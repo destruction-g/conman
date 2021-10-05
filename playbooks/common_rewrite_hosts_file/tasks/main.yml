@@ -1,5 +1,5 @@
 - name: "Generate new data in /etc/hosts {{inventory_hostname}}"
-  local_action: "shell python3 ../aux/helper.py generate_hosts_file_dict"
+  local_action: "shell python3 ../src/helper.py generate_hosts_file_dict"
   register: result
 
 - name: "Config was generated"
