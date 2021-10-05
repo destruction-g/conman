@@ -170,8 +170,8 @@ class configuration:
         ansible_acl_element_dict = {}
         ansible_acl_element_dict.update({"item_ip_address": self.configuration["configuration_items"][configuration_item_hostname]["ITEM_IP_ADDRESS"]})
         ansible_acl_element_dict.update({"full_comment": full_comment})
-        ansible_acl_element_dict.update(service_dict)
-        ansible_acl_element_dict.update(source_dict)
+        ansible_acl_element_dict.update({key if key.startswith("service_") else "service_" + key: value for key, value in service_dict.items()})
+        ansible_acl_element_dict.update({key if key.startswith("source_") else "source_" + key: value for key, value in source_dict.items()})
         return ansible_acl_element_dict
 
 
@@ -191,35 +191,36 @@ class configuration:
                         for acl_source_name in source_payload_array:
                             acl_source_ips_array = self.configuration['sources'][acl_source_name]
                             for source_dict in acl_source_ips_array:
-                                source_type = source_dict["source_type"]
+                                source_type = source_dict["type"]
                                 full_comment = acl_service_name
-                                if 'service_comment' in service_dict:
-                                    full_comment += " " + service_dict['service_comment']
+                                if 'comment' in service_dict:
+                                    full_comment += " " + service_dict['comment']
                                 full_comment += ' for ' + acl_source_name
 
                                 # тут мы разбираем каждый source элемент по типам:
                                 if source_type == "address":
-                                    if 'source_comment' in source_dict:
-                                        full_comment += " from " + source_dict['source_comment']
+                                    if 'comment' in source_dict:
+                                        full_comment += " from " + source_dict['comment']
                                     ansible_iptables_acls_array.append(self.compile_ansible_acl_element_dict(configuration_item_hostname, service_dict, source_dict, full_comment))
 
                                 if source_type == "item":
-                                    item_result = self.generate_acl_source_single_item(source_dict["source_item"])
+                                    item_result = self.generate_acl_source_single_item(source_dict["item"])
                                     if item_result["success"]:
                                         source_dict = item_result['data']
-                                        if 'source_comment' in source_dict:
-                                            full_comment += " from " + source_dict['source_comment']
+                                        if 'comment' in source_dict:
+                                            full_comment += " from " + source_dict['comment']
                                         ansible_iptables_acls_array.append(self.compile_ansible_acl_element_dict(configuration_item_hostname, service_dict, source_dict, full_comment))
                                     else:
                                         print("Ошибка заполнения элемента source:", item_result['reason'])
                                         exit(1)
 
                                 if source_type == "group":
-                                    group_result = self.generate_acl_source_group_items(source_dict["source_group"])
+                                    group_result = self.generate_acl_source_group_items(source_dict["group"])
                                     if group_result["success"]:
                                         for source_dict in group_result["data"]:
-                                            if 'source_comment' in source_dict:
-                                                full_comment_append = full_comment + " from " + source_dict['source_comment']
+                                            full_comment_append = full_comment
+                                            if 'comment' in source_dict:
+                                                full_comment_append += " from " + source_dict['comment']
                                             ansible_iptables_acls_array.append(self.compile_ansible_acl_element_dict(configuration_item_hostname, service_dict, source_dict, full_comment_append))
                                     else:
                                         return {"success": False, 'reason': group_result['reason']}
