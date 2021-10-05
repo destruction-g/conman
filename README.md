@@ -3,33 +3,36 @@
 
 
 ## Installation 
-``` git clone https://github.com/destruction-g/conman```
+``` git clone https://github.com/destruction-g/conman```  
+``` cd conman ```  
+edit **settings.json** with your favorite editor  
 
 
 ## Usage
-Запустить тулзу ```./folding.sh```
+Запустить тулзу ```./folding.sh [command] [configuration_items]```  
 Логи ```./folding.log```
 
+
 ## Settings
-Глобальные настройки тулзы ```settings.conf```.
+Глобальные настройки тулзы ```settings.json```.
 ``` 
 {
-   "ANSIBLE_INVENTORY_FILE_NAME": "/root/conman/inventory/static-inventory",
-   "CONFIGS_DIRECTORY": "/root/.config/conman/",
-   "CONFIGURATION_ITEMS_DIRECTORY": "/root/.config/conman/configuration_items/",
-   "KEYS_DIRECTORY": "/root/.config/conman/files/keys/"
+   "ANSIBLE_INVENTORY_FILE_NAME": "${HOME}/conman/inventory/static-inventory",
+   "CONFIGS_DIRECTORY": "${HOME}/.config/conman/",
+   "CONFIGURATION_ITEMS_DIRECTORY": "${HOME}/.config/conman/configuration_items/",
+   "KEYS_DIRECTORY": "${HOME}/.config/conman/files/keys/"
 }
 ```
 
 
 ## Configuration
-Конфигурация тулзы расположена домашней директории ```/root/.config/conman```.
+Конфигурация тулзы расположена домашней директории, указанной в **settings.json** ```CONFIGS_DIRECTORY```.
 ```
-├── acls
+├── acls.json
 ├── configuration_items
-│   ├── domain0.com 
-│   ├── domain1.com
-│   └── domain2.com 
+│   ├── domain0.com.json
+│   ├── domain1.com.json
+│   └── domain2.com.json 
 ├── defaults
 ├── files
 │   └── keys
@@ -44,13 +47,13 @@
 │           │   ├── id_rsa
 │           │   └── id_rsa.pub
 │           └── new
-├── key_replace_stats
-├── services
-└── sources
+├── key_replace_stats.json
+├── services.json
+└── sources.json
 ```
 
 
-#### defaults
+#### defaults.json
 Файл содержит значения полей по-умолчанию для **configuration_items**.
 ```
 {
@@ -79,7 +82,7 @@
 *На основе данных файлов в последствии создается ```inventory``` файл для ```ansible```.*
 
 
-### acls
+### acls.json
 Файл, в краткой форме описывает правила для файрвола
 ``` 
 {
@@ -90,7 +93,7 @@
 ```
 
 
-#### services
+#### services.json
 Файл содержит описание сервисов.
 ``` 
 {
@@ -105,7 +108,7 @@
 }
 ```
 
-#### sources
+#### sources.json
 Файл содержит описание источников.
 ``` 
 {
@@ -132,7 +135,7 @@
 *В комментарий для каждого из хостов в режимах ```item``` и ```group``` будут браться значения ```inventory_hostname```*
 
 
-#### key_replace_stats
+#### key_replace_stats.json
 Файл хранит состояния этапов процедуры *замены ключей*  
 ``` 
 {
