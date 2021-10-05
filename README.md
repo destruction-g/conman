@@ -5,6 +5,7 @@
 ## Installation 
 ``` git clone https://github.com/destruction-g/conman```  
 ``` cd conman ```  
+
 edit **settings.json** with your favorite editor  
 
 
