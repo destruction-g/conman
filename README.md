@@ -17,10 +17,10 @@ edit **settings.json** with your favorite editor
 Глобальные настройки тулзы ```settings.json```.
 ``` 
 {
-   "ANSIBLE_INVENTORY_FILE_NAME": "${HOME}/conman/inventory/static-inventory",
-   "CONFIGS_DIRECTORY": "${HOME}/.config/conman/",
-   "CONFIGURATION_ITEMS_DIRECTORY": "${HOME}/.config/conman/configuration_items/",
-   "KEYS_DIRECTORY": "${HOME}/.config/conman/files/keys/"
+    "ANSIBLE_INVENTORY_FILE_NAME": "${HOME}/src/github/destruction-g/conman/conman/inventory/static-inventory",
+    "CONFIGS_DIRECTORY": "${HOME}/src/github/destruction-g/conman/.config/conman/",
+    "CONFIGURATION_ITEMS_DIRECTORY": "${HOME}/src/github/destruction-g/conman/.config/conman/configuration_items/",
+    "KEYS_DIRECTORY": "${HOME}/src/github/destruction-g/conman/.config/conman/files/keys/"
 }
 ```
 
