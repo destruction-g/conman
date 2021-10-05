@@ -1,6 +1,6 @@
 ---
 - name: Prepare /etc/hosts file
-  hosts: all 
+  hosts: "{{host}}"
   gather_facts: no
   roles:
     - common_rewrite_hosts_file
