@@ -7,17 +7,17 @@ import socket
 PROJECT_DIRECTORY = os.path.abspath(os.path.join(__file__ ,"../.."))
 SETTINGS = {}
 try:
-    settings_json_file = json.load(open(os.path.join(PROJECT_DIRECTORY, "settings.conf")))
-    SETTINGS["CONFIGS_DIRECTORY"] = settings_json_file["CONFIGS_DIRECTORY"]
-    SETTINGS["KEYS_DIRECTORY"] = settings_json_file["KEYS_DIRECTORY"]
-    SETTINGS["CONFIGURATION_ITEMS_DIRECTORY"] = settings_json_file["CONFIGURATION_ITEMS_DIRECTORY"]
-    SETTINGS["ANSIBLE_INVENTORY_FILE_NAME"] = settings_json_file["ANSIBLE_INVENTORY_FILE_NAME"]
+    settings_json_file = json.load(open(os.path.join(PROJECT_DIRECTORY, "settings.json")))
+    SETTINGS["CONFIGS_DIRECTORY"] = os.path.expandvars(settings_json_file["CONFIGS_DIRECTORY"]) 
+    SETTINGS["KEYS_DIRECTORY"] = os.path.expandvars(settings_json_file["KEYS_DIRECTORY"])
+    SETTINGS["CONFIGURATION_ITEMS_DIRECTORY"] = os.path.expandvars(settings_json_file["CONFIGURATION_ITEMS_DIRECTORY"])
+    SETTINGS["ANSIBLE_INVENTORY_FILE_NAME"] = os.path.expandvars(settings_json_file["ANSIBLE_INVENTORY_FILE_NAME"])
 except Exception as e:
     SETTINGS.update({"CONFIGS_DIRECTORY": os.path.expanduser("~/.config/conman/")})
     SETTINGS.update({"KEYS_DIRECTORY": os.path.join(SETTINGS["CONFIGS_DIRECTORY"], "files/keys/")})
     SETTINGS.update({"CONFIGURATION_ITEMS_DIRECTORY": os.path.join(SETTINGS["CONFIGS_DIRECTORY"], 'configuration_items/')})
     SETTINGS.update({"ANSIBLE_INVENTORY_FILE_NAME": os.path.join(PROJECT_DIRECTORY, 'inventory/static-inventory')})
-    settings_json_file = open(os.path.join(PROJECT_DIRECTORY, "settings.conf"), "w")
+    settings_json_file = open(os.path.join(PROJECT_DIRECTORY, "settings.json"), "w")
     settings_json_file.write(json.dumps(SETTINGS, indent=0, sort_keys=True))
     settings_json_file.close()
 
@@ -29,7 +29,7 @@ class configuration:
         # cоставляем все составляющие конфигурации в единый словарь:
         for parameter_type in self.configuration_parameter_types_array:
             try:
-                json_file = json.load(open(os.path.join(SETTINGS["CONFIGS_DIRECTORY"], parameter_type)))
+                json_file = json.load(open(os.path.join(SETTINGS["CONFIGS_DIRECTORY"], parameter_type + ".json")))
                 self.configuration[parameter_type] = json_file
             except Exception as e:
                 print("Ошибка при чтении", parameter_type, e)
@@ -39,7 +39,7 @@ class configuration:
         for inventory_hostname in os.listdir(SETTINGS["CONFIGURATION_ITEMS_DIRECTORY"]):
             try:
                 json_file = json.load(open(os.path.join(SETTINGS["CONFIGURATION_ITEMS_DIRECTORY"], inventory_hostname)))
-                self.configuration["configuration_items"].update({inventory_hostname: json_file})
+                self.configuration["configuration_items"].update({os.path.splitext(inventory_hostname)[0]: json_file})
             except Exception as e:
                 print("Ошибка при чтении конфигурационной единицы", inventory_hostname, e)
                 exit(1)
@@ -54,21 +54,14 @@ class configuration:
                 configuration_item_dict["ITEM_IP_ADDRESS"] = socket.gethostbyname(configuration_item_hostname)
             self.configuration["configuration_items"][configuration_item_hostname].update(configuration_item_dict)
 
-    def get_target_hosts(self):
-        out = ["127.0.0.1"];
-        if "configuration_items" not in self.configuration:
-            return out
-
-        for item in self.configuration["configuration_items"].values():
-            print(item)
-            if "ITEM_IP_ADDRESS" in item:
-                out.append(item["ITEM_IP_ADDRESS"]) 
-        
-        return out;
-
+    # for debug
     def print(self):
         for element in self.configuration["configuration_items"]:
             print(element,  self.configuration["configuration_items"][element])
+
+        for el in self.configuration_parameter_types_array:
+            print("------------------------")
+            print(el, self.configuration[el])
 
     # рефакторинг
     # эта функция выдает массив словаре конфигураций для чистки файла hosts
