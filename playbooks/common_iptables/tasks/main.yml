@@ -34,7 +34,7 @@
     chain: INPUT
     protocol: "{{item.service_protocol | default(omit)}}"
     source: "{{item.source_address | default(omit)}}"
-    destination: "{{ item.service_destination_ip | default(item.item_ip_address) }}"
+    destination: "{{ item.service_destination_ip | default(item.ip) }}"
     destination_port: "{{item.service_destination_port | default(omit) }}"
     jump: ACCEPT
     comment: "{{item.full_comment}}"

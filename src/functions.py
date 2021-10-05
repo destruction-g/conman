@@ -50,8 +50,8 @@ class configuration:
     def fill_missing_data_to_configuration_items(self):
         for configuration_item_hostname in self.configuration["configuration_items"]:
             configuration_item_dict = self.configuration["configuration_items"][configuration_item_hostname]
-            if "ITEM_IP_ADDRESS" not in configuration_item_dict:
-                configuration_item_dict["ITEM_IP_ADDRESS"] = socket.gethostbyname(configuration_item_hostname)
+            if "ip" not in configuration_item_dict:
+                configuration_item_dict["ip"] = socket.gethostbyname(configuration_item_hostname)
             self.configuration["configuration_items"][configuration_item_hostname].update(configuration_item_dict)
 
     # for debug
@@ -94,8 +94,8 @@ class configuration:
         try:
             for configuration_item_hostname in self.configuration["configuration_items"]:
                 configuration_item_dict = self.configuration["configuration_items"][configuration_item_hostname]
-                if "ITEM_IP_ADDRESS" in configuration_item_dict:
-                    hosts_file_dict["data"].update({configuration_item_hostname: configuration_item_dict["ITEM_IP_ADDRESS"]})
+                if "ip" in configuration_item_dict:
+                    hosts_file_dict["data"].update({configuration_item_hostname: configuration_item_dict["ip"]})
         except Exception as e:
             hosts_file_dict["success"] = False
             hosts_file_dict["reason"] = "Ошибка чтения словаря на элементе " + configuration_item_hostname + e
@@ -108,12 +108,12 @@ class configuration:
         ansible_inventory_dict = {}
         for configuration_item_hostname in self.configuration["configuration_items"]:
             configuration_item_dict = self.configuration["configuration_items"][configuration_item_hostname]
-            for configuration_item_group_name in configuration_item_dict['ITEM_GROUPS']:
+            for configuration_item_group_name in configuration_item_dict['groups']:
                 ansible_inventory_item = configuration_item_hostname
-                if "ITEM_IP_ADDRESS" in configuration_item_dict:
-                    ansible_inventory_item += " ansible_hostname=" + configuration_item_dict["ITEM_IP_ADDRESS"]
-                if "ITEM_SSH_PORT" in configuration_item_dict:
-                    ansible_inventory_item += " ansible_port=" + configuration_item_dict["ITEM_SSH_PORT"]
+                if "ip" in configuration_item_dict:
+                    ansible_inventory_item += " ansible_hostname=" + configuration_item_dict["ip"]
+                if "ssh_port" in configuration_item_dict:
+                    ansible_inventory_item += " ansible_port=" + configuration_item_dict["ssh_port"]
                 if not configuration_item_group_name in ansible_inventory_dict:
                     ansible_inventory_dict[configuration_item_group_name] = []
                 ansible_inventory_dict[configuration_item_group_name].append(ansible_inventory_item.rstrip())
@@ -134,8 +134,8 @@ class configuration:
             acl_source_group_temp_dict['data'] = []
             for configuration_item_hostname in self.configuration["configuration_items"]:
                 configuration_item_dict = self.configuration["configuration_items"][configuration_item_hostname]
-                if group_name in configuration_item_dict['ITEM_GROUPS']:
-                    acl_source_group_temp_dict['data'].append({"source_address": configuration_item_dict['ITEM_IP_ADDRESS'], "source_type": "group", "source_comment": configuration_item_hostname})
+                if group_name in configuration_item_dict['groups']:
+                    acl_source_group_temp_dict['data'].append({"source_address": configuration_item_dict['ip'], "source_type": "group", "source_comment": configuration_item_hostname})
             if not acl_source_group_temp_dict['data']:
                 acl_source_group_temp_dict['success'] = False
                 acl_source_group_temp_dict['reason'] = 'Не найдено ни одной подходящей конфигурационной единицы'
@@ -154,7 +154,7 @@ class configuration:
         try:
             if configuration_item_hostname in self.configuration["configuration_items"]:
                 configuration_item_dict = self.configuration["configuration_items"][configuration_item_hostname]
-                acl_source_single_temp_dict['data'] = {"source_address": configuration_item_dict['ITEM_IP_ADDRESS'], "source_type": "item", "source_comment": configuration_item_hostname}
+                acl_source_single_temp_dict['data'] = {"source_address": configuration_item_dict['ip'], "source_type": "item", "source_comment": configuration_item_hostname}
             else:
                 acl_source_single_temp_dict['success'] = False
                 acl_source_single_temp_dict['reason'] = 'Не найдено ни одной подходящей конфигурационной единицы'
@@ -168,7 +168,7 @@ class configuration:
 
     def compile_ansible_acl_element_dict(self, configuration_item_hostname, service_dict, source_dict, full_comment):
         ansible_acl_element_dict = {}
-        ansible_acl_element_dict.update({"item_ip_address": self.configuration["configuration_items"][configuration_item_hostname]["ITEM_IP_ADDRESS"]})
+        ansible_acl_element_dict.update({"ip": self.configuration["configuration_items"][configuration_item_hostname]["ip"]})
         ansible_acl_element_dict.update({"full_comment": full_comment})
         ansible_acl_element_dict.update({key if key.startswith("service_") else "service_" + key: value for key, value in service_dict.items()})
         ansible_acl_element_dict.update({key if key.startswith("source_") else "source_" + key: value for key, value in source_dict.items()})
@@ -181,7 +181,7 @@ class configuration:
         ansible_iptables_acls_array = []
         if configuration_item_hostname in self.configuration["configuration_items"]:
             configuration_item_dict = self.configuration["configuration_items"][configuration_item_hostname]
-            acls_array = configuration_item_dict["ITEM_ACLS"]
+            acls_array = configuration_item_dict["acls"]
             for acl_name in acls_array:
                 acl_payload_dict = self.configuration["acls"][acl_name]
                 for acl_service_name in acl_payload_dict:
@@ -227,6 +227,6 @@ class configuration:
                                         exit(1)
 
         if not ansible_iptables_acls_array:
-            return {"success": False, 'reason': "Массив пуст"}
+            return {"success": False, 'reason': "empty array"}
 
         return {"success": True, 'data': ansible_iptables_acls_array}
