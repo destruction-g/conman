@@ -25,13 +25,13 @@ status_unknown() {
 if [[ $1 == "" ]]
     then
       >&2 echo "updatehosts   - update /etc/hosts file on remote hosts"
-      >&2 echo "deploykey 	  - установить ssh ключ для пользователя root"
+      >&2 echo "deploykey     - установить ssh ключ для пользователя root"
       >&2 echo "deploykeysudo - установить ssh ключ для пользователя root с помощью sudo"
-      >&2 echo "primary		  - Обязательная настройка сервера"
-      >&2 echo "iptables	  - Применить правила iptables"
-      >&2 echo "vpnprepare	  - Настроить VPN с нуля"
-      >&2 echo "guestkeys	  - установить гостевые ключи"
-      >&2 echo "test    	  - Плейбук для отладки"
+      >&2 echo "primary       - Обязательная настройка сервера"
+      >&2 echo "iptables      - Применить правила iptables"
+      >&2 echo "vpnprepare    - Настроить VPN с нуля"
+      >&2 echo "guestkeys     - установить гостевые ключи"
+      >&2 echo "test          - Плейбук для отладки"
       exit
 fi
 
