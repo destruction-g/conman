@@ -33,7 +33,7 @@ class configuration:
                 json_file = json.load(open(os.path.join(SETTINGS["CONFIGS_DIRECTORY"], parameter_type + ".json")))
                 self.configuration[parameter_type] = json_file
             except Exception as e:
-                print('[configuration.__init__] - failed to read %s' % parameter_type, traceback.format_exc(), sep="\n")
+                print('[configuration.__init__] - failed to read %s: %s' % (parameter_type, e), traceback.format_exc(), sep="\n")
                 exit(1)
         # догружаем в словарь все конфигурационные единицы:
         self.configuration["configuration_items"] = {}
@@ -42,7 +42,7 @@ class configuration:
                 json_file = json.load(open(os.path.join(SETTINGS["CONFIGURATION_ITEMS_DIRECTORY"], inventory_hostname)))
                 self.configuration["configuration_items"].update({os.path.splitext(inventory_hostname)[0]: json_file})
             except Exception as e:
-                print("Ошибка при чтении конфигурационной единицы", inventory_hostname, e)
+                print('[configuration.__init__] - failed to read configuration item %s: %s' % (inventory_hostname, e), traceback.format_exc(), sep="\n")
                 exit(1)
         self.fill_missing_data_to_configuration_items()
 
