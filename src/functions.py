@@ -1,6 +1,7 @@
 import vars
 import os, json
 import socket
+import traceback
 
 # рефакторинг
 # инициализация конфигурации
@@ -32,7 +33,7 @@ class configuration:
                 json_file = json.load(open(os.path.join(SETTINGS["CONFIGS_DIRECTORY"], parameter_type + ".json")))
                 self.configuration[parameter_type] = json_file
             except Exception as e:
-                print("Ошибка при чтении", parameter_type, e)
+                print('[configuration.__init__] - failed to read %s' % parameter_type, traceback.format_exc(), sep="\n")
                 exit(1)
         # догружаем в словарь все конфигурационные единицы:
         self.configuration["configuration_items"] = {}
