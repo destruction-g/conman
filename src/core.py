@@ -125,7 +125,7 @@ class Core:
                     acl_source_group_temp_dict['data'].append({"source_address": configuration_item_dict['ip'], "source_type": "group", "source_comment": configuration_item_hostname})
             if not acl_source_group_temp_dict['data']:
                 acl_source_group_temp_dict['success'] = False
-                acl_source_group_temp_dict['reason'] = 'Не найдено ни одной подходящей конфигурационной единицы'
+                acl_source_group_temp_dict['reason'] = 'failed to find configuration item for such group %s' % (group_name) 
                 return acl_source_group_temp_dict
         except Exception as e:
             acl_source_group_temp_dict['success'] = False
@@ -145,7 +145,7 @@ class Core:
                 acl_source_single_temp_dict['data'] = {"source_address": configuration_item_dict['ip'], "source_type": "item", "source_comment": configuration_item_hostname}
             else:
                 acl_source_single_temp_dict['success'] = False
-                acl_source_single_temp_dict['reason'] = 'Не найдено ни одной подходящей конфигурационной единицы'
+                acl_source_single_temp_dict['reason'] = 'failed to find configuration item for such item %s' % (configuration_item_hostname)
                 return acl_source_single_temp_dict
         except Exception as e:
             acl_source_single_temp_dict['success'] = False
@@ -212,7 +212,6 @@ class Core:
                                             ansible_iptables_acls_array.append(self.compile_ansible_acl_element_dict(configuration_item_hostname, service_dict, source_dict, full_comment_append))
                                     else:
                                         return {"success": False, 'reason': group_result['reason']}
-                                        exit(1)
 
         if not ansible_iptables_acls_array:
             return {"success": False, 'reason': "empty array"}
