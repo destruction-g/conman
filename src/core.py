@@ -81,6 +81,8 @@ class Core:
             data[name] = host["ip"]
             if "alias" in host and isinstance(host["alias"], list):
                 for alias in host["alias"]:
+                    if alias in data: 
+                        return {"success": False, "reason": 'Several ips (%s , %s) for one %s' % (data[alias], host["ip"], alias)}
                     data[alias] = host["ip"] 
 
         return {"success": True, "data": data}
