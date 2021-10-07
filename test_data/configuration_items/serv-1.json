@@ -1,0 +1,7 @@
+{
+    "groups": ["db", "internal"],
+    "host_name": "serv-1",
+    "acls": ["mysql", "default"],
+    "alias": ["serv-1.service", "serv-1.test"],
+    "ip": "23.88.127.191"
+}
