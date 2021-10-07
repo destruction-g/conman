@@ -1,114 +1,97 @@
-import vars
 import os, json
+import sys
 import socket
 import traceback
 
-# рефакторинг
-# инициализация конфигурации
-PROJECT_DIRECTORY = os.path.abspath(os.path.join(__file__ ,"../.."))
-SETTINGS = {}
-try:
-    settings_json_file = json.load(open(os.path.join(PROJECT_DIRECTORY, "settings.json")))
-    SETTINGS["CONFIGS_DIRECTORY"] = os.path.expandvars(settings_json_file["CONFIGS_DIRECTORY"]) 
-    SETTINGS["KEYS_DIRECTORY"] = os.path.expandvars(settings_json_file["KEYS_DIRECTORY"])
-    SETTINGS["CONFIGURATION_ITEMS_DIRECTORY"] = os.path.expandvars(settings_json_file["CONFIGURATION_ITEMS_DIRECTORY"])
-    SETTINGS["ANSIBLE_INVENTORY_FILE_NAME"] = os.path.expandvars(settings_json_file["ANSIBLE_INVENTORY_FILE_NAME"])
-except Exception as e:
-    SETTINGS.update({"CONFIGS_DIRECTORY": os.path.expanduser("~/.config/conman/")})
-    SETTINGS.update({"KEYS_DIRECTORY": os.path.join(SETTINGS["CONFIGS_DIRECTORY"], "files/keys/")})
-    SETTINGS.update({"CONFIGURATION_ITEMS_DIRECTORY": os.path.join(SETTINGS["CONFIGS_DIRECTORY"], 'configuration_items/')})
-    SETTINGS.update({"ANSIBLE_INVENTORY_FILE_NAME": os.path.join(PROJECT_DIRECTORY, 'inventory/static-inventory')})
-    settings_json_file = open(os.path.join(PROJECT_DIRECTORY, "settings.json"), "w")
-    settings_json_file.write(json.dumps(SETTINGS, indent=0, sort_keys=True))
-    settings_json_file.close()
-
-# рефакторинг
-class configuration:
-    def __init__(self):
-        self.configuration_parameter_types_array = ["defaults", "sources", "services", "acls"]
-        self.configuration = {}
-        # cоставляем все составляющие конфигурации в единый словарь:
-        for parameter_type in self.configuration_parameter_types_array:
+class Core:
+    def __init__(self, configs_directory, configuration_items_directory, ansible_inventory_file_name, keys_directory):
+        self.__configs_directory = configs_directory
+        self.__configuration_items_directory = configuration_items_directory
+        self.__ansible_inventory_file_name = ansible_inventory_file_name
+        self.__keys_directory = keys_directory
+        configuration = {}
+        
+        # read main configurations"defaults", "sources", "services", "acls"
+        configuraiton_array = ["defaults", "sources", "services", "acls"]
+        for parameter_type in configuraiton_array:
             try:
-                json_file = json.load(open(os.path.join(SETTINGS["CONFIGS_DIRECTORY"], parameter_type + ".json")))
-                self.configuration[parameter_type] = json_file
+                json_file = json.load(open(os.path.join(configs_directory, parameter_type + ".json")))
+                configuration[parameter_type] = json_file
             except Exception as e:
-                print('[configuration.__init__] - failed to read %s: %s' % (parameter_type, e), traceback.format_exc(), sep="\n")
-                exit(1)
-        # догружаем в словарь все конфигурационные единицы:
-        self.configuration["configuration_items"] = {}
-        for inventory_hostname in os.listdir(SETTINGS["CONFIGURATION_ITEMS_DIRECTORY"]):
+                print('[Core.__init__] - failed to read %s: %s' % (inventory_hostname, e), traceback.format_exc(), sep="\n")
+                sys.exit(1)
+
+        # read main configuration_items:
+        configuration["configuration_items"] = {}
+        for inventory_hostname in os.listdir(configuration_items_directory):
             try:
-                json_file = json.load(open(os.path.join(SETTINGS["CONFIGURATION_ITEMS_DIRECTORY"], inventory_hostname)))
-                self.configuration["configuration_items"].update({os.path.splitext(inventory_hostname)[0]: json_file})
+                json_file = json.load(open(os.path.join(configuration_items_directory, inventory_hostname)))
+                configuration["configuration_items"].update({os.path.splitext(inventory_hostname)[0]: json_file})
             except Exception as e:
-                print('[configuration.__init__] - failed to read configuration item %s: %s' % (inventory_hostname, e), traceback.format_exc(), sep="\n")
-                exit(1)
-        self.fill_missing_data_to_configuration_items()
+                print('[Core.__init__] - failed to read configuration item %s: %s' % (inventory_hostname, e), traceback.format_exc(), sep="\n")
+                sys.exit(1)
 
-    # рефакторинг
-    # эта функция дополняет неполные данные в конфигурационной единице, например, ип адрес
-    def fill_missing_data_to_configuration_items(self):
-        for configuration_item_hostname in self.configuration["configuration_items"]:
-            configuration_item_dict = self.configuration["configuration_items"][configuration_item_hostname]
-            if "ip" not in configuration_item_dict:
-                configuration_item_dict["ip"] = socket.gethostbyname(configuration_item_hostname)
-            self.configuration["configuration_items"][configuration_item_hostname].update(configuration_item_dict)
+        # fill ips
+        configuration_items = configuration["configuration_items"]
+        for name, host in configuration_items.items():
+            if "ip" not in host:
+                host["ip"] = socket.gethostbyname(name)
+            configuration_items[name].update(host)
 
-    # for debug
-    def print(self):
-        for element in self.configuration["configuration_items"]:
-            print(element,  self.configuration["configuration_items"][element])
+        self.__configuration = configuration
 
-        for el in self.configuration_parameter_types_array:
-            print("------------------------")
-            print(el, self.configuration[el])
 
-    # рефакторинг
-    # эта функция выдает массив словаре конфигураций для чистки файла hosts
+    def get_configuration(self):
+        return self.__configuration
+
+
+    def get_configuration_items_directory(self):
+        return self.__configuration_items_directory
+
+
+    def get_keys_directory(self):
+        return self.__keys_directory
+
+
     def generate_configuration_items_dict(self):
         configuration_items_dict = {}
         try:
-            configuration_items_dict["data"] = self.configuration["configuration_items"]
+            configuration_items_dict["data"] = self.__configuration["configuration_items"]
         except Exception as e:
             configuration_items_dict["success"] = False
             configuration_items_dict["reason"] = "Ошибка чтения словаря конфигурационных единиц, " + e
             return configuration_items_dict
         configuration_items_dict["success"] = True
         return configuration_items_dict
+    
 
-    # рефакторинг
-    # возвращает путь к конфигурации для подстановки в плейбуки
-    def get_configuration_items_directory(self):
-        return SETTINGS["CONFIGURATION_ITEMS_DIRECTORY"]
-
-    def get_keys_directory(self):
-        return SETTINGS["KEYS_DIRECTORY"]
-
-
-
-    # рефакторинг
-    # эта функция выдает словарь {имяхоста:ипадрес, имяхоста:ипадрес} для подстановки в файл hosts
     def generate_hosts_file_dict(self):
-        hosts_file_dict = {}
-        hosts_file_dict["data"] = {}
-        try:
-            for configuration_item_hostname in self.configuration["configuration_items"]:
-                configuration_item_dict = self.configuration["configuration_items"][configuration_item_hostname]
-                if "ip" in configuration_item_dict:
-                    hosts_file_dict["data"].update({configuration_item_hostname: configuration_item_dict["ip"]})
-        except Exception as e:
-            hosts_file_dict["success"] = False
-            hosts_file_dict["reason"] = "Ошибка чтения словаря на элементе " + configuration_item_hostname + e
-        hosts_file_dict["success"] = True
-        return hosts_file_dict
+        """Generate data for /etc/hosts file.
+        
+        Function gets domain name and ip configuration_items.
+        Domain names are key of configuration_items dictionary and values by 'alias' property.
+        This function returned next dictionary: 
+        {'success':boolean, 'data':{":domain_name":"ip"}}
+        """
+
+        data = {}
+        for name, host in self.__configuration["configuration_items"].items():
+            if "ip" not in host:
+                continue
+            data[name] = host["ip"]
+            if "alias" in host and isinstance(host["alias"], list):
+                for alias in host["alias"]:
+                    data[alias] = host["ip"] 
+
+        return {"success": True, "data": data}
+
 
     # рефакторинг
     # эта функция создает файл инвентори для ансибла
     def write_static_inventory_file_for_ansible(self):
         ansible_inventory_dict = {}
-        for configuration_item_hostname in self.configuration["configuration_items"]:
-            configuration_item_dict = self.configuration["configuration_items"][configuration_item_hostname]
+        for configuration_item_hostname in self.__configuration["configuration_items"]:
+            configuration_item_dict = self.__configuration["configuration_items"][configuration_item_hostname]
             for configuration_item_group_name in configuration_item_dict['groups']:
                 ansible_inventory_item = configuration_item_hostname
                 if "ip" in configuration_item_dict:
@@ -119,7 +102,7 @@ class configuration:
                     ansible_inventory_dict[configuration_item_group_name] = []
                 ansible_inventory_dict[configuration_item_group_name].append(ansible_inventory_item.rstrip())
 
-        outfile = open(SETTINGS["ANSIBLE_INVENTORY_FILE_NAME"], 'w')
+        outfile = open(self.__ansible_inventory_file_name, 'w')
         for group in ansible_inventory_dict:
             outfile.write("[" + group + "]" + "\n")
             for ansible_inventory_item in ansible_inventory_dict[group]:
@@ -127,14 +110,15 @@ class configuration:
             outfile.write("\n")
         outfile.close()
 
+
     # рефакторинг
     # эта функция создает список отдельных source-элементов входящих в группу для подстановки в acl
     def generate_acl_source_group_items(self, group_name):
         acl_source_group_temp_dict = {}
         try:
             acl_source_group_temp_dict['data'] = []
-            for configuration_item_hostname in self.configuration["configuration_items"]:
-                configuration_item_dict = self.configuration["configuration_items"][configuration_item_hostname]
+            for configuration_item_hostname in self.__configuration["configuration_items"]:
+                configuration_item_dict = self.__configuration["configuration_items"][configuration_item_hostname]
                 if group_name in configuration_item_dict['groups']:
                     acl_source_group_temp_dict['data'].append({"source_address": configuration_item_dict['ip'], "source_type": "group", "source_comment": configuration_item_hostname})
             if not acl_source_group_temp_dict['data']:
@@ -148,13 +132,14 @@ class configuration:
         acl_source_group_temp_dict['success'] = True
         return acl_source_group_temp_dict
 
+
     # рефакторинг
     # эта функция создает отдельный source-элемент для подстановки в acl
     def generate_acl_source_single_item(self, configuration_item_hostname):
         acl_source_single_temp_dict = {}
         try:
-            if configuration_item_hostname in self.configuration["configuration_items"]:
-                configuration_item_dict = self.configuration["configuration_items"][configuration_item_hostname]
+            if configuration_item_hostname in self.__configuration["configuration_items"]:
+                configuration_item_dict = self.__configuration["configuration_items"][configuration_item_hostname]
                 acl_source_single_temp_dict['data'] = {"source_address": configuration_item_dict['ip'], "source_type": "item", "source_comment": configuration_item_hostname}
             else:
                 acl_source_single_temp_dict['success'] = False
@@ -167,9 +152,10 @@ class configuration:
         acl_source_single_temp_dict['success'] = True
         return acl_source_single_temp_dict
 
+
     def compile_ansible_acl_element_dict(self, configuration_item_hostname, service_dict, source_dict, full_comment):
         ansible_acl_element_dict = {}
-        ansible_acl_element_dict.update({"ip": self.configuration["configuration_items"][configuration_item_hostname]["ip"]})
+        ansible_acl_element_dict.update({"ip": self.__configuration["configuration_items"][configuration_item_hostname]["ip"]})
         ansible_acl_element_dict.update({"full_comment": full_comment})
         ansible_acl_element_dict.update({key if key.startswith("service_") else "service_" + key: value for key, value in service_dict.items()})
         ansible_acl_element_dict.update({key if key.startswith("source_") else "source_" + key: value for key, value in source_dict.items()})
@@ -180,17 +166,17 @@ class configuration:
     # эта функция создает отдельный словарь с переменными для подстановки в плейбук common_iptables
     def generate_ansible_iptables_acls_array(self, configuration_item_hostname):
         ansible_iptables_acls_array = []
-        if configuration_item_hostname in self.configuration["configuration_items"]:
-            configuration_item_dict = self.configuration["configuration_items"][configuration_item_hostname]
+        if configuration_item_hostname in self.__configuration["configuration_items"]:
+            configuration_item_dict = self.__configuration["configuration_items"][configuration_item_hostname]
             acls_array = configuration_item_dict["acls"]
             for acl_name in acls_array:
-                acl_payload_dict = self.configuration["acls"][acl_name]
+                acl_payload_dict = self.__configuration["acls"][acl_name]
                 for acl_service_name in acl_payload_dict:
-                    service_payload_array = self.configuration['services'][acl_service_name]
+                    service_payload_array = self.__configuration['services'][acl_service_name]
                     for service_dict in service_payload_array:
                         source_payload_array = acl_payload_dict[acl_service_name]
                         for acl_source_name in source_payload_array:
-                            acl_source_ips_array = self.configuration['sources'][acl_source_name]
+                            acl_source_ips_array = self.__configuration['sources'][acl_source_name]
                             for source_dict in acl_source_ips_array:
                                 source_type = source_dict["type"]
                                 full_comment = acl_service_name
@@ -212,9 +198,8 @@ class configuration:
                                             full_comment += " from " + source_dict['comment']
                                         ansible_iptables_acls_array.append(self.compile_ansible_acl_element_dict(configuration_item_hostname, service_dict, source_dict, full_comment))
                                     else:
-                                        print("Ошибка заполнения элемента source:", item_result['reason'])
-                                        exit(1)
-
+                                        return {"success": False, 'reason': group_result['reason']}
+                                        
                                 if source_type == "group":
                                     group_result = self.generate_acl_source_group_items(source_dict["group"])
                                     if group_result["success"]:

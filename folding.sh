@@ -38,7 +38,7 @@ fi
 ITEM=$2
 
 status_busy "Building static inventory"
-python3 ./src/helper.py write_static_inventory_file_for_ansible >> folding.log 2>> folding.log
+python3 ./src/main.py write_static_inventory_file_for_ansible >> folding.log 2>> folding.log
 [ $? -eq 0 ] && status_done || { status_failed; exit 1; }
 
 status_busy "Update local /etc/hosts file"

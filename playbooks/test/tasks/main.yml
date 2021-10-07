@@ -19,7 +19,7 @@
     msg: "брать ключ {{key_type}}"
 
 # - name: "Сгенерировать словарь ACL для {{inventory_hostname}}"
-#   local_action: "shell python ../aux/helper.py generate_acls_dict_for_ansible {{inventory_hostname}}"
+#   local_action: "shell python ../src/main.py generate_acls_dict_for_ansible {{inventory_hostname}}"
 #   register: result
 #
 # - name: set fact acls_dict_for_ansible
