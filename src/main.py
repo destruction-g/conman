@@ -44,7 +44,7 @@ def main(argv=sys.argv):
         elif action == "generate_ansible_iptables_acls_array":
             inventory_hostname = str(sys.argv[2])
             result = core.generate_ansible_iptables_acls_array(inventory_hostname)
-            if not result.success: 
+            if not result["success"]: 
                 code = 2
             print(result)
         elif action == "generate_configuration_items_dict":
