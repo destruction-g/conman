@@ -18,7 +18,7 @@ class Core:
                 json_file = json.load(open(os.path.join(configs_directory, parameter_type + ".json")))
                 configuration[parameter_type] = json_file
             except Exception as e:
-                print('[Core.__init__] - failed to read %s: %s' % (inventory_hostname, e), traceback.format_exc(), sep="\n")
+                print('[Core.__init__] - failed to read %s: %s' % (parameter_type, e), traceback.format_exc(), sep="\n")
                 sys.exit(1)
 
         # read main configuration_items:
