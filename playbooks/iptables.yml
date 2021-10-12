@@ -1,5 +1,5 @@
 ---
-- name: Обазательная базовая настройка сервера
+- name: Fairwall configuration 
   hosts: "{{host}}"
   # serial: 1
   vars:

@@ -10,15 +10,37 @@
   set_fact:
     current_inventory_hostname: "{{acls_dict_for_ansible[inventory_hostname]}}"
 
-- name: netfilter-persistent flush
-  ansible.builtin.shell:
-    cmd: netfilter-persistent flush
+- name: Get existing iptables all rules from filter table
+  ansible.builtin.shell: 
+    cmd: iptables -L -n
+  changed_when: false
+  register: filter_iptables_rules
 
-- name: Allow related and established connections
+- name: Get network interface 
+  ansible.builtin.shell: 
+    cmd: ip -br link show | awk '{print $1}' | sed -n '2p' 
+  changed_when: false
+  register: ip_interfaces
+
+- name: Set fact network interface
+  set_fact:
+    network_interface: "{{ip_interfaces.stdout}}"
+
+- name: Set the policy for the INPUT chain to ACCEPT
   ansible.builtin.iptables:
     chain: INPUT
-    ctstate: ESTABLISHED,RELATED
-    jump: ACCEPT
+    policy: ACCEPT
+
+- name: Flush INPUT chain
+  ansible.builtin.iptables:
+    chain: INPUT
+    flush: true
+
+- name: Flush DOCKER-USER chain
+  ansible.builtin.iptables:
+    chain: DOCKER-USER
+    flush: true
+  when: "'DOCKER-USER' in filter_iptables_rules.stdout"
 
 # - name: Allow icmp type 8 echo requests
 #   ansible.builtin.iptables:
@@ -29,7 +51,32 @@
 #     comment: "Allow icmp type {{ item }} echo requests"
 #   with_items: [ "3", "4", "8", "11" ]
 
-- name: Accept iptables rules
+- name: Accept iptables rules for DOCKER-USER chain
+  ansible.builtin.shell:
+    cmd: "iptables -A DOCKER-USER -i {{network_interface}} -s {{item.source_address | default('0.0.0.0/0')}} -p {{item.service_protocol | default('all')}} -m conntrack --ctorigdstport {{item.service_destination_port}} -j ACCEPT -m comment --comment '{{item.full_comment | default('#')}}'"
+  with_items: "{{ current_inventory_hostname.data }}"
+  when:
+    - current_inventory_hostname.success
+    - "{{item.service_in_docker | default(false)}}"
+    - "{{item.service_destination_port | default(false)}}"
+    - "'DOCKER-USER' in filter_iptables_rules.stdout"
+
+- name: Append DROP rule into DOCKER-USER chain
+  ansible.builtin.iptables:
+    chain: DOCKER-USER
+    in_interface: "{{network_interface}}"
+    jump: DROP
+  when:
+    - current_inventory_hostname.success
+    - "'DOCKER-USER' in filter_iptables_rules.stdout"
+
+- name: Allow related and established connections for INPUT chain
+  ansible.builtin.iptables:
+    chain: INPUT
+    ctstate: ESTABLISHED,RELATED
+    jump: ACCEPT
+
+- name: Accept iptables rules for INPUT chain
   ansible.builtin.iptables:
     chain: INPUT
     protocol: "{{item.service_protocol | default(omit)}}"
@@ -39,51 +86,56 @@
     jump: ACCEPT
     comment: "{{item.full_comment}}"
   with_items: "{{ current_inventory_hostname.data }}"
-  when: current_inventory_hostname.success
+  when: 
+    - current_inventory_hostname.success
+    - "{{ not (item.service_in_docker | default(false)) }}"
 
 - name: Set the policy for the INPUT chain to DROP
   ansible.builtin.iptables:
     chain: INPUT
     policy: DROP
+  when: current_inventory_hostname.success
 
-- name: Set the policy for the FORWARD chain to DROP
-  ansible.builtin.iptables:
-    chain: FORWARD
-    policy: DROP
-  when: CONFIG.ITEM_FORWARD_POLICY_DROP
+## - name: Set the policy for the FORWARD chain to DROP
+##   ansible.builtin.iptables:
+##     chain: FORWARD
+##     policy: DROP
+##   when: CONFIG.ITEM_FORWARD_POLICY_DROP
+#
+## - name: Enable VPN NAT Passthru
+##   sysctl:
+##     name: net.netfilter.nf_conntrack_helper
+##     value: '1'
+##     sysctl_set: yes
+##   when: not CONFIG.ITEM_FORWARD_POLICY_DROP
+## 
+## - name: Enable net.ipv4.ip_forward
+##   sysctl:
+##     name: net.ipv4.ip_forward
+##     value: '1'
+##     sysctl_set: yes
+##   when: not CONFIG.ITEM_FORWARD_POLICY_DROP
+## 
+## - name: Add nf_nat_pptp module
+##   lineinfile:
+##    path: /etc/modules
+##    regexp: '^nf_nat_pptp'
+##    line: "nf_nat_pptp"
+##   when: not CONFIG.ITEM_FORWARD_POLICY_DROP
+## 
+## - name: Add nf_conntrack_pptp module
+##   lineinfile:
+##    path: /etc/modules
+##    regexp: '^nf_conntrack_pptp'
+##    line: "nf_conntrack_pptp"
+##   when: not CONFIG.ITEM_FORWARD_POLICY_DROP
 
-- name: Enable VPN NAT Passthru
-  sysctl:
-    name: net.netfilter.nf_conntrack_helper
-    value: '1'
-    sysctl_set: yes
-  when: not CONFIG.ITEM_FORWARD_POLICY_DROP
-
-- name: Enable net.ipv4.ip_forward
-  sysctl:
-    name: net.ipv4.ip_forward
-    value: '1'
-    sysctl_set: yes
-  when: not CONFIG.ITEM_FORWARD_POLICY_DROP
-
-- name: Add nf_nat_pptp module
-  lineinfile:
-   path: /etc/modules
-   regexp: '^nf_nat_pptp'
-   line: "nf_nat_pptp"
-  when: not CONFIG.ITEM_FORWARD_POLICY_DROP
-
-- name: Add nf_conntrack_pptp module
-  lineinfile:
-   path: /etc/modules
-   regexp: '^nf_conntrack_pptp'
-   line: "nf_conntrack_pptp"
-  when: not CONFIG.ITEM_FORWARD_POLICY_DROP
-
-- name: netfilter-persistent save
+- name: Netfilter persistent save
   ansible.builtin.shell:
     cmd: netfilter-persistent save
+  when: current_inventory_hostname.success
 
-- name: netfilter-persistent reload
+- name: Netfilter persistent reload
   ansible.builtin.shell:
     cmd: netfilter-persistent reload
+  when: current_inventory_hostname.success
