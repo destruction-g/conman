@@ -4,53 +4,8 @@ import socket
 import traceback
 
 class Core:
-    def __init__(self, configs_directory, configuration_items_directory, ansible_inventory_file_name, keys_directory):
-        self.__configs_directory = configs_directory
-        self.__configuration_items_directory = configuration_items_directory
-        self.__ansible_inventory_file_name = ansible_inventory_file_name
-        self.__keys_directory = keys_directory
-        configuration = {}
-        
-        # read main configurations"defaults", "sources", "services", "acls"
-        configuraiton_array = ["defaults", "sources", "services", "acls"]
-        for parameter_type in configuraiton_array:
-            try:
-                json_file = json.load(open(os.path.join(configs_directory, parameter_type + ".json")))
-                configuration[parameter_type] = json_file
-            except Exception as e:
-                print('[Core.__init__] - failed to read %s: %s' % (parameter_type, e), traceback.format_exc(), sep="\n")
-                sys.exit(1)
-
-        # read main configuration_items:
-        configuration["configuration_items"] = {}
-        for inventory_hostname in os.listdir(configuration_items_directory):
-            try:
-                json_file = json.load(open(os.path.join(configuration_items_directory, inventory_hostname)))
-                configuration["configuration_items"].update({os.path.splitext(inventory_hostname)[0]: json_file})
-            except Exception as e:
-                print('[Core.__init__] - failed to read configuration item %s: %s' % (inventory_hostname, e), traceback.format_exc(), sep="\n")
-                sys.exit(1)
-
-        # fill ips
-        configuration_items = configuration["configuration_items"]
-        for name, host in configuration_items.items():
-            if "ip" not in host:
-                host["ip"] = socket.gethostbyname(name)
-            configuration_items[name].update(host)
-
+    def __init__(self, configuration):
         self.__configuration = configuration
-
-
-    def get_configuration(self):
-        return self.__configuration
-
-
-    def get_configuration_items_directory(self):
-        return self.__configuration_items_directory
-
-
-    def get_keys_directory(self):
-        return self.__keys_directory
 
 
     def generate_configuration_items_dict(self):
@@ -86,31 +41,6 @@ class Core:
                     data[alias] = host["ip"] 
 
         return {"success": True, "data": data}
-
-
-    # рефакторинг
-    # эта функция создает файл инвентори для ансибла
-    def write_static_inventory_file_for_ansible(self):
-        ansible_inventory_dict = {}
-        for configuration_item_hostname in self.__configuration["configuration_items"]:
-            configuration_item_dict = self.__configuration["configuration_items"][configuration_item_hostname]
-            for configuration_item_group_name in configuration_item_dict['groups']:
-                ansible_inventory_item = configuration_item_hostname
-                if "ip" in configuration_item_dict:
-                    ansible_inventory_item += " ansible_hostname=" + configuration_item_dict["ip"]
-                if "ssh_port" in configuration_item_dict:
-                    ansible_inventory_item += " ansible_port=" + configuration_item_dict["ssh_port"]
-                if not configuration_item_group_name in ansible_inventory_dict:
-                    ansible_inventory_dict[configuration_item_group_name] = []
-                ansible_inventory_dict[configuration_item_group_name].append(ansible_inventory_item.rstrip())
-
-        outfile = open(self.__ansible_inventory_file_name, 'w')
-        for group in ansible_inventory_dict:
-            outfile.write("[" + group + "]" + "\n")
-            for ansible_inventory_item in ansible_inventory_dict[group]:
-                outfile.write(ansible_inventory_item + "\n")
-            outfile.write("\n")
-        outfile.close()
 
 
     # рефакторинг
