@@ -1,6 +1,0 @@
-{
-    "groups": ["backends", "internal"],
-    "host_name": "serv-3",
-    "acls": ["backends", "default"],
-    "ip": "23.88.126.90"
-}

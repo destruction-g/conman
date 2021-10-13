@@ -1,6 +1,0 @@
-{
-    "groups": ["db", "internal"],
-    "host_name": "serv-2",
-    "acls": ["mysql", "default"],
-    "ip": "23.88.127.228"
-}
