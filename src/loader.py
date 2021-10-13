@@ -61,7 +61,7 @@ class Loader:
                 host["ip"] = socket.gethostbyname(name)
             configuration_items[name].update(host)
 
-        self.__create_inventory_file_for_ansible(configuration)
+        #self.create_inventory_file_for_ansible(configuration)
 
         self.__configuration = configuration
 
@@ -69,7 +69,7 @@ class Loader:
     def get_configuration(self):
         return self.__configuration
 
-    def __create_inventory_file_for_ansible(self, configuration):
+    def create_inventory_file_for_ansible(self, configuration):
         ansible_inventory_dict = {}
         for configuration_item_hostname in configuration["configuration_items"]:
             configuration_item_dict = configuration["configuration_items"][configuration_item_hostname]

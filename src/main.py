@@ -13,13 +13,14 @@ def main(argv=sys.argv):
 
     action = str(sys.argv[1])
     loader = Loader();
-    core = Core(loader.get_configuration())
+    configuration = loader.get_configuration()
+    core = Core(configuration)
     try:
         code = 0
         if action == "print":
             print(core.get_configuration())
         elif action == "write_static_inventory_file_for_ansible":
-            result = core.write_static_inventory_file_for_ansible()
+            result = loader.create_inventory_file_for_ansible(configuration)
         elif action == "generate_ansible_iptables_acls_array":
             inventory_hostname = str(sys.argv[2])
             result = core.generate_ansible_iptables_acls_array(inventory_hostname)
