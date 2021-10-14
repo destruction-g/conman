@@ -11,7 +11,7 @@
     current_inventory_hostname: "{{acls_dict_for_ansible[inventory_hostname]}}"
 
 - name: Get existing iptables all rules from filter table
-  ansible.builtin.shell: 
+  ansible.builtin.shell:
     cmd: iptables -L -n
   changed_when: false
   register: filter_iptables_rules
@@ -52,20 +52,29 @@
 #   with_items: [ "3", "4", "8", "11" ]
 
 - name: Accept iptables rules for DOCKER-USER chain
-  ansible.builtin.shell:
-    cmd: "iptables -A DOCKER-USER -i {{network_interface}} -s {{item.source_address | default('0.0.0.0/0')}} -p {{item.service_protocol | default('all')}} -m conntrack --ctorigdstport {{item.service_destination_port}} -j ACCEPT -m comment --comment '{{item.full_comment | default('#')}}'"
-  with_items: "{{ current_inventory_hostname.data }}"
+  ansible.builtin.shell: 
+    cmd: "iptables -I DOCKER-USER -i {{network_interface}} -s {{item.source_address | default('0.0.0.0/0')}} -p {{item.service_protocol | default('all')}} -m conntrack --ctorigdstport {{item.service_destination_port}} -j ACCEPT -m comment --comment '{{item.full_comment | default('#')}}'"
+  with_items: "{{ current_inventory_hostname.data.docker.accept | default([])}}"
   when:
     - current_inventory_hostname.success
-    - "{{item.service_in_docker | default(false)}}"
-    - "{{item.service_destination_port | default(false)}}"
+    - "'service_destination_port' in item and item.service_destination_port"
     - "'DOCKER-USER' in filter_iptables_rules.stdout"
+      #- "{{item.service_in_docker | default(false)}}"
 
-- name: Append DROP rule into DOCKER-USER chain
+- name: Drop iptables rules for DOCKER-USER chain
+  ansible.builtin.shell: 
+    cmd: "iptables -A DOCKER-USER -i {{network_interface}} -p {{item.service_protocol | default('all')}} -m conntrack --ctorigdstport {{item.service_destination_port}} -j DROP"
+  with_items: "{{ current_inventory_hostname.data.docker.drop }}"
+  when:
+    - current_inventory_hostname.success
+    - "'service_destination_port' in item and item.service_destination_port"
+    - "'DOCKER-USER' in filter_iptables_rules.stdout"
+      #- item.service_in_docker
+
+- name: Append RETURN rule into DOCKER-USER chain
   ansible.builtin.iptables:
     chain: DOCKER-USER
-    in_interface: "{{network_interface}}"
-    jump: DROP
+    jump: RETURN
   when:
     - current_inventory_hostname.success
     - "'DOCKER-USER' in filter_iptables_rules.stdout"
@@ -85,10 +94,10 @@
     destination_port: "{{item.service_destination_port | default(omit) }}"
     jump: ACCEPT
     comment: "{{item.full_comment}}"
-  with_items: "{{ current_inventory_hostname.data }}"
+  with_items: "{{ current_inventory_hostname.data.input.accept }}"
   when: 
     - current_inventory_hostname.success
-    - "{{ not (item.service_in_docker | default(false)) }}"
+    - "'service_in_docker' in item and item.service_in_docker is True"
 
 - name: Set the policy for the INPUT chain to DROP
   ansible.builtin.iptables:
@@ -131,11 +140,11 @@
 ##   when: not CONFIG.ITEM_FORWARD_POLICY_DROP
 
 - name: Netfilter persistent save
-  ansible.builtin.shell:
+  ansible.builtin.shell: 
     cmd: netfilter-persistent save
   when: current_inventory_hostname.success
 
 - name: Netfilter persistent reload
-  ansible.builtin.shell:
+  ansible.builtin.shell: 
     cmd: netfilter-persistent reload
   when: current_inventory_hostname.success
