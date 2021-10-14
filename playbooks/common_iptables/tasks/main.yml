@@ -97,7 +97,7 @@
   with_items: "{{ current_inventory_hostname.data.input.accept }}"
   when: 
     - current_inventory_hostname.success
-    - "'service_in_docker' in item and not item.service_in_docker"
+    - "'service_in_docker' not in item or not item.service_in_docker"
 
 - name: Set the policy for the INPUT chain to DROP
   ansible.builtin.iptables:
