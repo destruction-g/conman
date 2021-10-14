@@ -42,11 +42,14 @@ class Core:
         This function returned next dictionary: 
         {'success':boolean, 'data':{'docker':[], 'input':[]}}
         """
+        
+        docker = {"accept":[], "drop": []}
+        _input = {"accept":[], "drop": []}
 
-        data = {"docker":[], "input":[]}
         if hostname not in self.__configuration_items:
             return {"success": False, "reason": "not found configuration_item by this hostname %s" % hostname}
 
+        docker_destination_ports = set()
         configuration_item = self.__configuration_items[hostname]
         for acl_name in configuration_item["acls"]:
             acl = self.__acls[acl_name]
@@ -54,39 +57,44 @@ class Core:
                 for service in self.__services[acl_service_name]:
                     for acl_source_name in acl[acl_service_name]:
                         for source in self.__sources[acl_source_name]:
-                            full_comment = acl_service_name
-                            if "comment" in service:
-                                full_comment += " " + service["comment"]
+                            full_comment = acl_service_name + " " + service["comment"] if "comment" in service else  acl_service_name
                             full_comment += " for " + acl_source_name
-
+                            
+                            elements = [] 
                             if source["type"] == "address":
-                                if "comment" in source:
-                                    full_comment += " from " + source["comment"]
-                                data["input"].append(self.__compile_ansible_acl_element_dict(hostname, service, source, full_comment))
-
+                                full_comment_append = full_comment + " from " + source["comment"] if "comment" in source else full_comment
+                                elements.append(self.__compile_ansible_acl_element_dict(hostname, service, source, full_comment_append))
                             if source["type"] == "item":
                                 item_result = self.__generate_acl_source_single_item(source["item"])
                                 if not item_result["success"]:
                                     return {"success": False, "reason": group_result["reason"]}
+
                                 source = item_result["data"]
-                                if "comment" in source:
-                                    full_comment += " from " + source["comment"]
-                                data["input"].append(self.__compile_ansible_acl_element_dict(hostname, service, source, full_comment))
-                                    
+                                full_comment_append = full_comment + " from " + source["comment"] if "comment" in source else full_comment
+                    
+                                elements.append(self.__compile_ansible_acl_element_dict(hostname, service, source, full_comment_append))
                             if source["type"] == "group":
                                 group_result = self.__generate_acl_source_group_items(source["group"])
                                 if not group_result["success"]:
-                                    return {"success": False, "reason": group_result["reason"]}
+                                    return {"success": False, "reason": group_reslt["reason"]}
                                 for source in group_result["data"]:
-                                    full_comment_append = full_comment
-                                    if "comment" in source:
-                                        full_comment_append += " from " + source["comment"]
-                                    data["input"].append(self.__compile_ansible_acl_element_dict(hostname, service, source, full_comment_append))
+                                    full_comment_append = full_comment + " from " + source["comment"] if "comment" in source else full_comment
+                                    elements.append(self.__compile_ansible_acl_element_dict(hostname, service, source, full_comment_append))
 
-        if not data:
-            return {"success": False, "reason": "empty array"}
+                            for el in elements: 
+                                if "service_in_docker" in el and el["service_in_docker"] is True: 
+                                    if "service_destination_port" in el and el["service_destination_port"] not in docker_destination_ports:    
+                                        docker_destination_ports.add(el["service_destination_port"])
+                                        docker["drop"].append(el)  
+                                    else:
+                                        docker["accept"].append(el)  
+                                else: 
+                                    _input["accept"].append(el)
 
-        return {"success": True, "data": data}
+        if not docker["accept"] and not docker["drop"] and not _input["accept"] and not _input["drop"]:
+            return {"success": False, "reason": "empty iptables rules"}
+
+        return {"success": True, "data": {"docker": docker, "input": _input}}
 
 
     def __generate_acl_source_group_items(self, group_name):
