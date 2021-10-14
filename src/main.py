@@ -18,7 +18,7 @@ def main(argv=sys.argv):
     try:
         code = 0
         if action == "print":
-            print(core.get_configuration())
+            print(configuration)
         elif action == "write_static_inventory_file_for_ansible":
             result = loader.create_inventory_file_for_ansible(configuration)
         elif action == "generate_ansible_iptables_acls_array":
