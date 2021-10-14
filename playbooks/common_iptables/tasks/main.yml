@@ -18,7 +18,7 @@
 
 - name: Get network interface 
   ansible.builtin.shell: 
-    cmd: ip -br link show | awk '{print $1}' | sed -n '2p' 
+    cmd: ip -br link show | awk '{print $1}' | sed -n '3p' 
   changed_when: false
   register: ip_interfaces
 
