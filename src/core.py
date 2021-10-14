@@ -86,8 +86,7 @@ class Core:
                                     if "service_destination_port" in el and el["service_destination_port"] not in docker_destination_ports:    
                                         docker_destination_ports.add(el["service_destination_port"])
                                         docker["drop"].append(el)  
-                                    else:
-                                        docker["accept"].append(el)  
+                                    docker["accept"].append(el)  
                                 else: 
                                     _input["accept"].append(el)
 

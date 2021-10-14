@@ -176,242 +176,277 @@ class TestCore(unittest.TestCase):
 
     def test_generate_ansible_iptables_acls_array(self):
         expect = {
-            "success": True,
-            "data": {
-                "docker": {
-                    "accept": [
+            "success":True,
+            "data":{
+                "docker":{
+                    "accept":[
                         {
-                            "ip": "23.88.127.228",
-                            "full_comment": "some_service yahaaaa, blay! for internal",
-                            "service_destination_port": 6666,
-                            "service_protocol": "tcp",
-                            "service_in_docker": True,
-                            "service_comment": "yahaaaa, blay!",
-                            "source_address": "78.47.84.140",
-                            "source_type": "group",
-                            "source_comment": "serv-2"
+                            "ip":"23.88.127.228",
+                            "full_comment":"some_service yahaaaa, blay! for internal",
+                            "service_destination_port":6666,
+                            "service_protocol":"tcp",
+                            "service_in_docker":True,
+                            "service_comment":"yahaaaa, blay!",
+                            "source_address":"23.88.127.228",
+                            "source_type":"group",
+                            "source_comment":"serv-1"
                         },
                         {
-                            "ip": "23.88.127.228",
-                            "full_comment": "some_service yahaaaa, blay! for internal",
-                            "service_destination_port": 7777,
-                            "service_protocol": "tcp",
-                            "service_in_docker": True,
-                            "service_comment": "yahaaaa, blay!",
-                            "source_address": "78.47.84.140",
-                            "source_type": "group",
-                            "source_comment": "serv-2"
+                            "ip":"23.88.127.228",
+                            "full_comment":"some_service yahaaaa, blay! for internal",
+                            "service_destination_port":6666,
+                            "service_protocol":"tcp",
+                            "service_in_docker":True,
+                            "service_comment":"yahaaaa, blay!",
+                            "source_address":"78.47.84.140",
+                            "source_type":"group",
+                            "source_comment":"serv-2"
                         },
                         {
-                            "ip": "23.88.127.228",
-                            "full_comment": "some_service yahaaaa, blay! for internal",
-                            "service_destination_port": 8888,
-                            "service_protocol": "tcp",
-                            "service_in_docker": True,
-                            "service_comment": "yahaaaa, blay!",
-                            "source_address": "78.47.84.140",
-                            "source_type": "group",
-                            "source_comment": "serv-2"
+                            "ip":"23.88.127.228",
+                            "full_comment":"some_service yahaaaa, blay! for internal",
+                            "service_destination_port":7777,
+                            "service_protocol":"tcp",
+                            "service_in_docker":True,
+                            "service_comment":"yahaaaa, blay!",
+                            "source_address":"23.88.127.228",
+                            "source_type":"group",
+                            "source_comment":"serv-1"
                         },
                         {
-                            "ip": "23.88.127.228",
-                            "full_comment": "some_service yahaaaa, blay! for all",
-                            "service_destination_port": 6666,
-                            "service_protocol": "tcp",
-                            "service_in_docker": True,
-                            "service_comment": "yahaaaa, blay!",
-                            "source_type": "address",
-                            "source_address": "0.0.0.0/0"
+                            "ip":"23.88.127.228",
+                            "full_comment":"some_service yahaaaa, blay! for internal",
+                            "service_destination_port":7777,
+                            "service_protocol":"tcp",
+                            "service_in_docker":True,
+                            "service_comment":"yahaaaa, blay!",
+                            "source_address":"78.47.84.140",
+                            "source_type":"group",
+                            "source_comment":"serv-2"
                         },
                         {
-                            "ip": "23.88.127.228",
-                            "full_comment": "some_service yahaaaa, blay! for all",
-                            "service_destination_port": 7777,
-                            "service_protocol": "tcp",
-                            "service_in_docker": True,
-                            "service_comment": "yahaaaa, blay!",
-                            "source_type": "address",
-                            "source_address": "0.0.0.0/0"
+                            "ip":"23.88.127.228",
+                            "full_comment":"some_service yahaaaa, blay! for internal",
+                            "service_destination_port":8888,
+                            "service_protocol":"tcp",
+                            "service_in_docker":True,
+                            "service_comment":"yahaaaa, blay!",
+                            "source_address":"23.88.127.228",
+                            "source_type":"group",
+                            "source_comment":"serv-1"
                         },
                         {
-                            "ip": "23.88.127.228",
-                            "full_comment": "some_service yahaaaa, blay! for all",
-                            "service_destination_port": 8888,
-                            "service_protocol": "tcp",
-                            "service_in_docker": True,
-                            "service_comment": "yahaaaa, blay!",
-                            "source_type": "address",
-                            "source_address": "0.0.0.0/0"
+                            "ip":"23.88.127.228",
+                            "full_comment":"some_service yahaaaa, blay! for internal",
+                            "service_destination_port":8888,
+                            "service_protocol":"tcp",
+                            "service_in_docker":True,
+                            "service_comment":"yahaaaa, blay!",
+                            "source_address":"78.47.84.140",
+                            "source_type":"group",
+                            "source_comment":"serv-2"
+                        },
+                        {
+                            "ip":"23.88.127.228",
+                            "full_comment":"some_service yahaaaa, blay! for all",
+                            "service_destination_port":6666,
+                            "service_protocol":"tcp",
+                            "service_in_docker":True,
+                            "service_comment":"yahaaaa, blay!",
+                            "source_type":"address",
+                            "source_address":"0.0.0.0/0"
+                        },
+                        {
+                            "ip":"23.88.127.228",
+                            "full_comment":"some_service yahaaaa, blay! for all",
+                            "service_destination_port":7777,
+                            "service_protocol":"tcp",
+                            "service_in_docker":True,
+                            "service_comment":"yahaaaa, blay!",
+                            "source_type":"address",
+                            "source_address":"0.0.0.0/0"
+                        },
+                        {
+                            "ip":"23.88.127.228",
+                            "full_comment":"some_service yahaaaa, blay! for all",
+                            "service_destination_port":8888,
+                            "service_protocol":"tcp",
+                            "service_in_docker":True,
+                            "service_comment":"yahaaaa, blay!",
+                            "source_type":"address",
+                            "source_address":"0.0.0.0/0"
                         }
                     ],
-                    "drop": [
+                    "drop":[
                         {
-                            "ip": "23.88.127.228",
-                            "full_comment": "some_service yahaaaa, blay! for internal",
-                            "service_destination_port": 6666,
-                            "service_protocol": "tcp",
-                            "service_in_docker": True,
-                            "service_comment": "yahaaaa, blay!",
-                            "source_address": "23.88.127.228",
-                            "source_type": "group",
-                            "source_comment": "serv-1"
+                            "ip":"23.88.127.228",
+                            "full_comment":"some_service yahaaaa, blay! for internal",
+                            "service_destination_port":6666,
+                            "service_protocol":"tcp",
+                            "service_in_docker":True,
+                            "service_comment":"yahaaaa, blay!",
+                            "source_address":"23.88.127.228",
+                            "source_type":"group",
+                            "source_comment":"serv-1"
                         },
                         {
-                            "ip": "23.88.127.228",
-                            "full_comment": "some_service yahaaaa, blay! for internal",
-                            "service_destination_port": 7777,
-                            "service_protocol": "tcp",
-                            "service_in_docker": True,
-                            "service_comment": "yahaaaa, blay!",
-                            "source_address": "23.88.127.228",
-                            "source_type": "group",
-                            "source_comment": "serv-1"
+                            "ip":"23.88.127.228",
+                            "full_comment":"some_service yahaaaa, blay! for internal",
+                            "service_destination_port":7777,
+                            "service_protocol":"tcp",
+                            "service_in_docker":True,
+                            "service_comment":"yahaaaa, blay!",
+                            "source_address":"23.88.127.228",
+                            "source_type":"group",
+                            "source_comment":"serv-1"
                         },
                         {
-                            "ip": "23.88.127.228",
-                            "full_comment": "some_service yahaaaa, blay! for internal",
-                            "service_destination_port": 8888,
-                            "service_protocol": "tcp",
-                            "service_in_docker": True,
-                            "service_comment": "yahaaaa, blay!",
-                            "source_address": "23.88.127.228",
-                            "source_type": "group",
-                            "source_comment": "serv-1"
+                            "ip":"23.88.127.228",
+                            "full_comment":"some_service yahaaaa, blay! for internal",
+                            "service_destination_port":8888,
+                            "service_protocol":"tcp",
+                            "service_in_docker":True,
+                            "service_comment":"yahaaaa, blay!",
+                            "source_address":"23.88.127.228",
+                            "source_type":"group",
+                            "source_comment":"serv-1"
                         }
                     ]
                 },
-                "input": {
-                    "accept": [
+                "input":{
+                    "accept":[
                         {
-                            "ip": "23.88.127.228",
-                            "full_comment": "dns-local dns for localhost",
-                            "service_destination_port": 53,
-                            "service_destination_ip": "127.0.0.53",
-                            "service_protocol": "tcp",
-                            "service_comment": "dns",
-                            "source_type": "address",
-                            "source_address": "127.0.0.1"
+                            "ip":"23.88.127.228",
+                            "full_comment":"dns-local dns for localhost",
+                            "service_destination_port":53,
+                            "service_destination_ip":"127.0.0.53",
+                            "service_protocol":"tcp",
+                            "service_comment":"dns",
+                            "source_type":"address",
+                            "source_address":"127.0.0.1"
                         },
                         {
-                            "ip": "23.88.127.228",
-                            "full_comment": "dns-local dns for localhost",
-                            "service_destination_port": 53,
-                            "service_destination_ip": "127.0.0.53",
-                            "service_protocol": "udp",
-                            "service_comment": "dns",
-                            "source_type": "address",
-                            "source_address": "127.0.0.1"
+                            "ip":"23.88.127.228",
+                            "full_comment":"dns-local dns for localhost",
+                            "service_destination_port":53,
+                            "service_destination_ip":"127.0.0.53",
+                            "service_protocol":"udp",
+                            "service_comment":"dns",
+                            "source_type":"address",
+                            "source_address":"127.0.0.1"
                         },
                         {
-                            "ip": "23.88.127.228",
-                            "full_comment": "docker swarm for internal",
-                            "service_destination_port": 2377,
-                            "service_protocol": "tcp",
-                            "service_comment": "swarm",
-                            "source_address": "23.88.127.228",
-                            "source_type": "group",
-                            "source_comment": "serv-1"
+                            "ip":"23.88.127.228",
+                            "full_comment":"docker swarm for internal",
+                            "service_destination_port":2377,
+                            "service_protocol":"tcp",
+                            "service_comment":"swarm",
+                            "source_address":"23.88.127.228",
+                            "source_type":"group",
+                            "source_comment":"serv-1"
                         },
                         {
-                            "ip": "23.88.127.228",
-                            "full_comment": "docker swarm for internal",
-                            "service_destination_port": 2377,
-                            "service_protocol": "tcp",
-                            "service_comment": "swarm",
-                            "source_address": "78.47.84.140",
-                            "source_type": "group",
-                            "source_comment": "serv-2"
+                            "ip":"23.88.127.228",
+                            "full_comment":"docker swarm for internal",
+                            "service_destination_port":2377,
+                            "service_protocol":"tcp",
+                            "service_comment":"swarm",
+                            "source_address":"78.47.84.140",
+                            "source_type":"group",
+                            "source_comment":"serv-2"
                         },
                         {
-                            "ip": "23.88.127.228",
-                            "full_comment": "docker tls for internal",
-                            "service_destination_port": 2376,
-                            "service_protocol": "tcp",
-                            "service_comment": "tls",
-                            "source_address": "23.88.127.228",
-                            "source_type": "group",
-                            "source_comment": "serv-1"
+                            "ip":"23.88.127.228",
+                            "full_comment":"docker tls for internal",
+                            "service_destination_port":2376,
+                            "service_protocol":"tcp",
+                            "service_comment":"tls",
+                            "source_address":"23.88.127.228",
+                            "source_type":"group",
+                            "source_comment":"serv-1"
                         },
                         {
-                            "ip": "23.88.127.228",
-                            "full_comment": "docker tls for internal",
-                            "service_destination_port": 2376,
-                            "service_protocol": "tcp",
-                            "service_comment": "tls",
-                            "source_address": "78.47.84.140",
-                            "source_type": "group",
-                            "source_comment": "serv-2"
+                            "ip":"23.88.127.228",
+                            "full_comment":"docker tls for internal",
+                            "service_destination_port":2376,
+                            "service_protocol":"tcp",
+                            "service_comment":"tls",
+                            "source_address":"78.47.84.140",
+                            "source_type":"group",
+                            "source_comment":"serv-2"
                         },
                         {
-                            "ip": "23.88.127.228",
-                            "full_comment": "docker ingress network for internal",
-                            "service_destination_port": 4789,
-                            "service_protocol": "udp",
-                            "service_comment": "ingress network",
-                            "source_address": "23.88.127.228",
-                            "source_type": "group",
-                            "source_comment": "serv-1"
+                            "ip":"23.88.127.228",
+                            "full_comment":"docker ingress network for internal",
+                            "service_destination_port":4789,
+                            "service_protocol":"udp",
+                            "service_comment":"ingress network",
+                            "source_address":"23.88.127.228",
+                            "source_type":"group",
+                            "source_comment":"serv-1"
                         },
                         {
-                            "ip": "23.88.127.228",
-                            "full_comment": "docker ingress network for internal",
-                            "service_destination_port": 4789,
-                            "service_protocol": "udp",
-                            "service_comment": "ingress network",
-                            "source_address": "78.47.84.140",
-                            "source_type": "group",
-                            "source_comment": "serv-2"
+                            "ip":"23.88.127.228",
+                            "full_comment":"docker ingress network for internal",
+                            "service_destination_port":4789,
+                            "service_protocol":"udp",
+                            "service_comment":"ingress network",
+                            "source_address":"78.47.84.140",
+                            "source_type":"group",
+                            "source_comment":"serv-2"
                         },
                         {
-                            "ip": "23.88.127.228",
-                            "full_comment": "docker network discovery for internal",
-                            "service_destination_port": 7946,
-                            "service_protocol": "tcp",
-                            "service_comment": "network discovery",
-                            "source_address": "23.88.127.228",
-                            "source_type": "group",
-                            "source_comment": "serv-1"
+                            "ip":"23.88.127.228",
+                            "full_comment":"docker network discovery for internal",
+                            "service_destination_port":7946,
+                            "service_protocol":"tcp",
+                            "service_comment":"network discovery",
+                            "source_address":"23.88.127.228",
+                            "source_type":"group",
+                            "source_comment":"serv-1"
                         },
                         {
-                            "ip": "23.88.127.228",
-                            "full_comment": "docker network discovery for internal",
-                            "service_destination_port": 7946,
-                            "service_protocol": "tcp",
-                            "service_comment": "network discovery",
-                            "source_address": "78.47.84.140",
-                            "source_type": "group",
-                            "source_comment": "serv-2"
+                            "ip":"23.88.127.228",
+                            "full_comment":"docker network discovery for internal",
+                            "service_destination_port":7946,
+                            "service_protocol":"tcp",
+                            "service_comment":"network discovery",
+                            "source_address":"78.47.84.140",
+                            "source_type":"group",
+                            "source_comment":"serv-2"
                         },
                         {
-                            "ip": "23.88.127.228",
-                            "full_comment": "docker network discovery for internal",
-                            "service_destination_port": 7946,
-                            "service_protocol": "udp",
-                            "service_comment": "network discovery",
-                            "source_address": "23.88.127.228",
-                            "source_type": "group",
-                            "source_comment": "serv-1"
+                            "ip":"23.88.127.228",
+                            "full_comment":"docker network discovery for internal",
+                            "service_destination_port":7946,
+                            "service_protocol":"udp",
+                            "service_comment":"network discovery",
+                            "source_address":"23.88.127.228",
+                            "source_type":"group",
+                            "source_comment":"serv-1"
                         },
                         {
-                            "ip": "23.88.127.228",
-                            "full_comment": "docker network discovery for internal",
-                            "service_destination_port": 7946,
-                            "service_protocol": "udp",
-                            "service_comment": "network discovery",
-                            "source_address": "78.47.84.140",
-                            "source_type": "group",
-                            "source_comment": "serv-2"
+                            "ip":"23.88.127.228",
+                            "full_comment":"docker network discovery for internal",
+                            "service_destination_port":7946,
+                            "service_protocol":"udp",
+                            "service_comment":"network discovery",
+                            "source_address":"78.47.84.140",
+                            "source_type":"group",
+                            "source_comment":"serv-2"
                         },
                         {
-                            "ip": "23.88.127.228",
-                            "full_comment": "ssh for all",
-                            "service_destination_port": 22,
-                            "service_protocol": "tcp",
-                            "source_type": "address",
-                            "source_address": "0.0.0.0/0"
+                            "ip":"23.88.127.228",
+                            "full_comment":"ssh for all",
+                            "service_destination_port":22,
+                            "service_protocol":"tcp",
+                            "source_type":"address",
+                            "source_address":"0.0.0.0/0"
                         }
                     ],
-                    "drop": []
+                    "drop":[
+                        
+                    ]
                 }
             }
         }
