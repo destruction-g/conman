@@ -16,15 +16,15 @@
   changed_when: false
   register: filter_iptables_rules
 
-- name: Get network interface 
-  ansible.builtin.shell: 
-    cmd: ip -br link show | awk '{print $1}' | sed -n '3p' 
-  changed_when: false
-  register: ip_interfaces
+# - name: Get network interface
+#   ansible.builtin.shell:
+#     cmd: ip -br link show | awk '{print $1}' | sed -n '3p'
+#   changed_when: false
+#   register: ip_interfaces
 
-- name: Set fact network interface
-  set_fact:
-    network_interface: "{{ip_interfaces.stdout}}"
+# - name: Set fact network interface
+#   set_fact:
+#     network_interface: "{{ip_interfaces.stdout}}"
 
 - name: Set the policy for the INPUT chain to ACCEPT
   ansible.builtin.iptables:
@@ -53,7 +53,7 @@
 
 - name: Accept iptables rules for DOCKER-USER chain
   ansible.builtin.shell: 
-    cmd: "iptables -I DOCKER-USER -i {{network_interface}} -s {{item.source_address | default('0.0.0.0/0')}} -p {{item.service_protocol | default('all')}} -m conntrack --ctorigdstport {{item.service_destination_port}} -j ACCEPT -m comment --comment '{{item.full_comment | default('#')}}'"
+    cmd: "iptables -I DOCKER-USER -i {{item.network_interface}} -s {{item.source_address | default('0.0.0.0/0')}} -p {{item.service_protocol | default('all')}} -m conntrack --ctorigdstport {{item.service_destination_port}} -j ACCEPT -m comment --comment '{{item.full_comment | default('#')}}'"
   with_items: "{{ current_inventory_hostname.data.docker.accept | default([])}}"
   when:
     - current_inventory_hostname.success
@@ -63,7 +63,7 @@
 
 - name: Drop iptables rules for DOCKER-USER chain
   ansible.builtin.shell: 
-    cmd: "iptables -A DOCKER-USER -i {{network_interface}} -p {{item.service_protocol | default('all')}} -m conntrack --ctorigdstport {{item.service_destination_port}} -j DROP"
+    cmd: "iptables -A DOCKER-USER -i {{item.network_interface}} -p {{item.service_protocol | default('all')}} -m conntrack --ctorigdstport {{item.service_destination_port}} -j DROP"
   with_items: "{{ current_inventory_hostname.data.docker.drop }}"
   when:
     - current_inventory_hostname.success
