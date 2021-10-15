@@ -115,46 +115,27 @@ class TestCore(unittest.TestCase):
             },
             "acls":{
                 "default":{
-                    "dns-local":[
-                        "localhost"
-                    ],
-                    "docker":[
-                        "internal"
-                    ],
-                    "some_service":[
-                        "internal"
-                    ],
-                    "ssh":[
-                        "all"
-                    ]
+                    "dns-local":[ "localhost" ],
+                    "docker":[ "internal" ],
+                    "some_service":[ "internal" ],
+                    "ssh":[ "all" ]
                 },
                 "debug":{
-                    "some_service":[
-                        "all"
-                    ]
+                    "some_service":[ "all" ]
                 }
             },
             "configuration_items":{
-                "serv-1":{
-                    "groups":[
-                        "internal"
-                    ],
+                "serv-1":{ 
+                    "groups":[ "internal" ],
                     "host_name":"serv-1",
-                    "acls":[
-                        "default",
-                        "debug"
-                    ],
+                    "acls":[ "default", "debug" ],
                     "ip":"23.88.127.228",
                     "alias": ["serv-1.test", "serv-1.service"]
                 },
                 "serv-2":{
-                    "groups":[
-                        "internal"
-                    ],
+                    "groups":[ "internal" ],
                     "host_name":"serv-2",
-                    "acls":[
-                        "default"
-                    ],
+                    "acls":[ "default" ],
                     "ip":"78.47.84.140"
                 }
             }
@@ -182,6 +163,7 @@ class TestCore(unittest.TestCase):
                     "accept":[
                         {
                             "ip":"23.88.127.228",
+                            "network_interface":"eth0",
                             "full_comment":"some_service yahaaaa, blay! for internal",
                             "service_destination_port":6666,
                             "service_protocol":"tcp",
@@ -193,6 +175,7 @@ class TestCore(unittest.TestCase):
                         },
                         {
                             "ip":"23.88.127.228",
+                            "network_interface":"eth0",
                             "full_comment":"some_service yahaaaa, blay! for internal",
                             "service_destination_port":6666,
                             "service_protocol":"tcp",
@@ -204,6 +187,7 @@ class TestCore(unittest.TestCase):
                         },
                         {
                             "ip":"23.88.127.228",
+                            "network_interface":"eth0",
                             "full_comment":"some_service yahaaaa, blay! for internal",
                             "service_destination_port":7777,
                             "service_protocol":"tcp",
@@ -215,6 +199,7 @@ class TestCore(unittest.TestCase):
                         },
                         {
                             "ip":"23.88.127.228",
+                            "network_interface":"eth0",
                             "full_comment":"some_service yahaaaa, blay! for internal",
                             "service_destination_port":7777,
                             "service_protocol":"tcp",
@@ -226,6 +211,7 @@ class TestCore(unittest.TestCase):
                         },
                         {
                             "ip":"23.88.127.228",
+                            "network_interface":"eth0",
                             "full_comment":"some_service yahaaaa, blay! for internal",
                             "service_destination_port":8888,
                             "service_protocol":"tcp",
@@ -237,6 +223,7 @@ class TestCore(unittest.TestCase):
                         },
                         {
                             "ip":"23.88.127.228",
+                            "network_interface":"eth0",
                             "full_comment":"some_service yahaaaa, blay! for internal",
                             "service_destination_port":8888,
                             "service_protocol":"tcp",
@@ -248,6 +235,7 @@ class TestCore(unittest.TestCase):
                         },
                         {
                             "ip":"23.88.127.228",
+                            "network_interface":"eth0",
                             "full_comment":"some_service yahaaaa, blay! for all",
                             "service_destination_port":6666,
                             "service_protocol":"tcp",
@@ -258,6 +246,7 @@ class TestCore(unittest.TestCase):
                         },
                         {
                             "ip":"23.88.127.228",
+                            "network_interface":"eth0",
                             "full_comment":"some_service yahaaaa, blay! for all",
                             "service_destination_port":7777,
                             "service_protocol":"tcp",
@@ -268,6 +257,7 @@ class TestCore(unittest.TestCase):
                         },
                         {
                             "ip":"23.88.127.228",
+                            "network_interface":"eth0",
                             "full_comment":"some_service yahaaaa, blay! for all",
                             "service_destination_port":8888,
                             "service_protocol":"tcp",
@@ -280,6 +270,7 @@ class TestCore(unittest.TestCase):
                     "drop":[
                         {
                             "ip":"23.88.127.228",
+                            "network_interface":"eth0",
                             "full_comment":"some_service yahaaaa, blay! for internal",
                             "service_destination_port":6666,
                             "service_protocol":"tcp",
@@ -291,6 +282,7 @@ class TestCore(unittest.TestCase):
                         },
                         {
                             "ip":"23.88.127.228",
+                            "network_interface":"eth0",
                             "full_comment":"some_service yahaaaa, blay! for internal",
                             "service_destination_port":7777,
                             "service_protocol":"tcp",
@@ -302,6 +294,7 @@ class TestCore(unittest.TestCase):
                         },
                         {
                             "ip":"23.88.127.228",
+                            "network_interface":"eth0",
                             "full_comment":"some_service yahaaaa, blay! for internal",
                             "service_destination_port":8888,
                             "service_protocol":"tcp",
@@ -317,6 +310,7 @@ class TestCore(unittest.TestCase):
                     "accept":[
                         {
                             "ip":"23.88.127.228",
+                            "network_interface":"eth0",
                             "full_comment":"dns-local dns for localhost",
                             "service_destination_port":53,
                             "service_destination_ip":"127.0.0.53",
@@ -327,6 +321,7 @@ class TestCore(unittest.TestCase):
                         },
                         {
                             "ip":"23.88.127.228",
+                            "network_interface":"eth0",
                             "full_comment":"dns-local dns for localhost",
                             "service_destination_port":53,
                             "service_destination_ip":"127.0.0.53",
@@ -337,6 +332,7 @@ class TestCore(unittest.TestCase):
                         },
                         {
                             "ip":"23.88.127.228",
+                            "network_interface":"eth0",
                             "full_comment":"docker swarm for internal",
                             "service_destination_port":2377,
                             "service_protocol":"tcp",
@@ -347,6 +343,7 @@ class TestCore(unittest.TestCase):
                         },
                         {
                             "ip":"23.88.127.228",
+                            "network_interface":"eth0",
                             "full_comment":"docker swarm for internal",
                             "service_destination_port":2377,
                             "service_protocol":"tcp",
@@ -357,6 +354,7 @@ class TestCore(unittest.TestCase):
                         },
                         {
                             "ip":"23.88.127.228",
+                            "network_interface":"eth0",
                             "full_comment":"docker tls for internal",
                             "service_destination_port":2376,
                             "service_protocol":"tcp",
@@ -367,6 +365,7 @@ class TestCore(unittest.TestCase):
                         },
                         {
                             "ip":"23.88.127.228",
+                            "network_interface":"eth0",
                             "full_comment":"docker tls for internal",
                             "service_destination_port":2376,
                             "service_protocol":"tcp",
@@ -377,6 +376,7 @@ class TestCore(unittest.TestCase):
                         },
                         {
                             "ip":"23.88.127.228",
+                            "network_interface":"eth0",
                             "full_comment":"docker ingress network for internal",
                             "service_destination_port":4789,
                             "service_protocol":"udp",
@@ -387,6 +387,7 @@ class TestCore(unittest.TestCase):
                         },
                         {
                             "ip":"23.88.127.228",
+                            "network_interface":"eth0",
                             "full_comment":"docker ingress network for internal",
                             "service_destination_port":4789,
                             "service_protocol":"udp",
@@ -397,6 +398,7 @@ class TestCore(unittest.TestCase):
                         },
                         {
                             "ip":"23.88.127.228",
+                            "network_interface":"eth0",
                             "full_comment":"docker network discovery for internal",
                             "service_destination_port":7946,
                             "service_protocol":"tcp",
@@ -407,6 +409,7 @@ class TestCore(unittest.TestCase):
                         },
                         {
                             "ip":"23.88.127.228",
+                            "network_interface":"eth0",
                             "full_comment":"docker network discovery for internal",
                             "service_destination_port":7946,
                             "service_protocol":"tcp",
@@ -417,6 +420,7 @@ class TestCore(unittest.TestCase):
                         },
                         {
                             "ip":"23.88.127.228",
+                            "network_interface":"eth0",
                             "full_comment":"docker network discovery for internal",
                             "service_destination_port":7946,
                             "service_protocol":"udp",
@@ -427,6 +431,7 @@ class TestCore(unittest.TestCase):
                         },
                         {
                             "ip":"23.88.127.228",
+                            "network_interface":"eth0",
                             "full_comment":"docker network discovery for internal",
                             "service_destination_port":7946,
                             "service_protocol":"udp",
@@ -437,6 +442,7 @@ class TestCore(unittest.TestCase):
                         },
                         {
                             "ip":"23.88.127.228",
+                            "network_interface":"eth0",
                             "full_comment":"ssh for all",
                             "service_destination_port":22,
                             "service_protocol":"tcp",

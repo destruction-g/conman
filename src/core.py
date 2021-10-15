@@ -122,8 +122,9 @@ class Core:
         return {"success": True, "data": { "source_address": configuration_item['ip'], "source_type": "item", "source_comment": hostname}}
         
     def __compile_ansible_acl_element_dict(self, hostname, service, source, full_comment):
+        host = self.__configuration_items[hostname]
         out = {}
-        out.update({"ip": self.__configuration_items[hostname]["ip"]})
+        out.update({"ip": host["ip"], "network_interface": host["network_interface"] if "network_interface" in host else "eth0"})
         out.update({"full_comment": full_comment})
         out.update({key if key.startswith("service_") else "service_" + key: value for key, value in service.items()})
         out.update({key if key.startswith("source_") else "source_" + key: value for key, value in source.items()})
