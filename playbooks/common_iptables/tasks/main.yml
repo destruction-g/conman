@@ -99,6 +99,15 @@
     - current_inventory_hostname.success
     - "'service_in_docker' not in item or not item.service_in_docker"
 
+- name: Accept interface docker_gwbridge rule for INPUT chain
+  ansible.builtin.iptables:
+    chain: INPUT
+    in_interface: docker_gwbridge
+    jump: ACCEPT
+  when:
+    - current_inventory_hostname.success
+    - "'DOCKER-USER' in filter_iptables_rules.stdout"
+
 - name: Set the policy for the INPUT chain to DROP
   ansible.builtin.iptables:
     chain: INPUT
