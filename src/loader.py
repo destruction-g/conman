@@ -1,4 +1,4 @@
-import os, json
+import os, yaml, json
 
 PROJECT_DIRECTORY = os.path.abspath(os.path.join(__file__ , "../.."))
 
@@ -7,21 +7,18 @@ class Loader:
         configs_directory, configuration_items_directory, ansible_inventory_file_name, keys_directory = "", "", "", "" 
 
         try:
-            settings_json_file = json.load(open(os.path.join(PROJECT_DIRECTORY, "settings.json")))
+            settings_json_file = self.__loadConfigJSON(os.path.join(PROJECT_DIRECTORY, "settings.json"))
             configs_directory = os.path.expandvars(settings_json_file["CONFIGS_DIRECTORY"]) 
             keys_directory = os.path.expandvars(settings_json_file["KEYS_DIRECTORY"])
-            configuration_items_directory = os.path.expandvars(settings_json_file["CONFIGURATION_ITEMS_DIRECTORY"])
             ansible_inventory_file_name = os.path.expandvars(settings_json_file["ANSIBLE_INVENTORY_FILE_NAME"])
         except Exception as e:
             configs_directory = os.path.expanduser("~/.config/conman/")
             keys_directory = os.path.join(configs_directory, "files/keys/")
-            configuration_items_directory = os.path.join(configs_directory, 'configuration_items/')
             ansible_inventory_file_name = os.path.join(PROJECT_DIRECTORY, 'inventory/static-inventory')
 
             settings_json_file = open(os.path.join(PROJECT_DIRECTORY, "settings.json"), "w")
             settings_json_file.write(json.dumps({
                                                 "CONFIGS_DIRECTORY": configs_directory,
-                                                "CONFIGURATION_ITEMS_DIRECTORY": configuration_items_directory,
                                                 "ANSIBLE_INVENTORY_FILE_NAME": ansible_inventory_file_name,
                                                 "KEYS_DIRECTORY": keys_directory
             }, indent=0, sort_keys=True))
@@ -35,24 +32,26 @@ class Loader:
         configuration = {}
         
         # read main configurations "defaults", "sources", "services", "acls"
-        configuraiton_array = ["defaults", "sources", "services", "acls"]
-        for parameter_type in configuraiton_array:
-            try:
-                json_file = json.load(open(os.path.join(configs_directory, parameter_type + ".json")))
-                configuration[parameter_type] = json_file
-            except Exception as e:
-                print('[Config.__init__] - failed to read %s: %s' % (parameter_type, e))
-                raise
+        try:
+            configuration["defaults"] = self.__loadConfigJSON(os.path.join(configs_directory, "defaults.json"))
+        except Exception as e:
+            print('[Config.__init__] - failed to read default settings from defaults.json: %s' % e)
+            raise
+
+        try:
+            yaml_file = self.__loadConfigYAML(os.path.join(configs_directory,  "iptables.yaml"))
+            for parameter_type in yaml_file:
+                configuration[parameter_type] = yaml_file[parameter_type];
+        except Exception as e:
+            print('[Config.__init__] - failed to read iptables rules from iptables.yml: %s' % e)
+            raise
 
         # read main configuration_items:
-        configuration["configuration_items"] = {}
-        for inventory_hostname in os.listdir(configuration_items_directory):
-            try:
-                json_file = json.load(open(os.path.join(configuration_items_directory, inventory_hostname)))
-                configuration["configuration_items"].update({os.path.splitext(inventory_hostname)[0]: json_file})
-            except Exception as e:
-                print('[Config.__init__] - failed to read configuration item %s: %s' % (inventory_hostname, e))
-                raise
+        try:
+            configuration["configuration_items"] = self.__loadConfigYAML(os.path.join(configs_directory,  "hosts.yaml"))
+        except Exception as e:
+            print('[Config.__init__] - failed to read configuration items from hosts.yaml: %s' % e)
+            raise
 
         # fill ips
         configuration_items = configuration["configuration_items"]
@@ -66,8 +65,21 @@ class Loader:
         self.__configuration = configuration
 
 
+    def __loadConfigYAML(self, path):
+        with open(path, 'r') as f:
+            yaml_file = yaml.safe_load(f)
+            return  yaml_file
+
+
+    def __loadConfigJSON(self, path):
+        with open(path, 'r') as f:
+            json_file = json.load(f)
+            return json_file
+
+
     def get_configuration(self):
         return self.__configuration
+
 
     def create_inventory_file_for_ansible(self, configuration):
         ansible_inventory_dict = {}
