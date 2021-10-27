@@ -22,7 +22,6 @@ edit **settings.json** with your favorite editor
 {
     "ANSIBLE_INVENTORY_FILE_NAME": "${HOME}/src/github/destruction-g/conman/inventory/static-inventory",
     "CONFIGS_DIRECTORY": "${HOME}/src/github/destruction-g/conman/.config/",
-    "CONFIGURATION_ITEMS_DIRECTORY": "${HOME}/src/github/destruction-g/conman/.config/configuration_items/",
     "KEYS_DIRECTORY": "${HOME}/src/github/destruction-g/conman/.config/files/keys/"
 }
 ```
@@ -31,12 +30,7 @@ edit **settings.json** with your favorite editor
 ## Configuration
 Конфигурация тулзы расположена домашней директории, указанной в **settings.json** ```CONFIGS_DIRECTORY```.
 ```
-├── acls.json
-├── configuration_items
-│   ├── domain0.com.json
-│   ├── domain1.com.json
-│   └── domain2.com.json 
-├── defaults
+├── defaults.json
 ├── files
 │   └── keys
 │       ├── docker
@@ -51,8 +45,8 @@ edit **settings.json** with your favorite editor
 │           │   └── id_rsa.pub
 │           └── new
 ├── key_replace_stats.json
-├── services.json
-└── sources.json
+├── iptables.json
+└── hosts.json
 ```
 
 
@@ -71,68 +65,61 @@ edit **settings.json** with your favorite editor
 ```
 
 
-#### configuration_items
-Дириктория содержит файлы с описанием сервера, к которому применяются настройки(*имя файла - dns имя сервера*). Конфигурационные параметры объявленные в этих файлах переопределяют значения по-умолчанию.
-``` 
+#### hosts.json
+Файл содержит описание серверов, к которому применяются настройки. Конфигурационные параметры объявленные в этих файлах переопределяют значения по-умолчанию.
+```
 {
-    "ITEM_GROUPS": ["linux"],         // список групп, используется при генерации static inventory, необязательное поле (пока не используется)
-    "ITEM_HOST_NAME": "ansible",      // название хоста, внутри сервера, обязательное поле
-    "ITEM_ACLS": ["management"],      // список ALC для данного сервера, обязательное поле
-    "ITEM_GUEST_KEYS": ["inkadavr"],  // список гостевых ключей, необязательное поле
-    "ITEM_IP_ADDRESS": "192.168.29.3" // ip адрес сервера, используется в случае если dns имени сервера не существует, необязательное поле
+    "domain": {
+        "groups": ["linux"],         // список групп, используется при генерации static inventory, необязательное поле (пока не используется)
+        "host_name": "ansible",      // название хоста, внутри сервера, обязательное поле
+        "acls": ["management"],      // список ALC для данного сервера, обязательное поле
+        "guest_keys": ["inkadavr"],  // список гостевых ключей, необязательное поле
+        "ip": "192.168.29.3"         // ip адрес сервера, используется в случае если dns имени сервера не существует, необязательное поле
+    }
 }
 ```
 *На основе данных файлов в последствии создается ```inventory``` файл для ```ansible```.*
 
 
-### acls.json
+### iptables.json
 Файл, в краткой форме описывает правила для файрвола
 ``` 
 {
-    "acl_name": {
-        "service_name": ["source1", "source2"]
+    "acls": {
+        "acl_name": {
+            "service_name": ["source1", "source2"]
+        }
+    },
+    "services": {
+        "service_name": [
+            {
+                "destination_port": 443,      // используется, если необходимо уточнить порт службы, необязательное поле
+                "protocol": "tcp",            // название протокола, обазательное поле
+                "comment": "https",           // если порт только один - можно не использоать, необязательное поле
+                "destination_ip": "127.0.0.1" // используется если необходимо ип адрес на котором должна слушать служба, необязательно поле
+            }
+        ]
+    },
+    "sources": {
+        "source_name": [
+            {
+                "type": "address|group|item", // обязательное поле, возможные значения:
+                                              // address - в этом режиме указывается напрямую ип адрес или подсеть
+                                              // group - в этом режиме указывается группа из inventory
+                                              // item - в этом режиме указывается inventory_hostname
+	            
+                // поля для режима address:
+                "ip": "192.168.79.101",	  // ип адрес источника, обазательное поле (режим address)
+                "comment": "proxmoxdub01" // если источник только один - можно не использоать, необязательное поле
+                
+                // поля для режима group:
+                "group": "proxmoxdub", // указывается группа из inventory, все хосты из этой группы попадут в acl, обязательное поле
+	        	
+                // поля для режима item:
+                "name": "zabbix", // указывается inventory_hostname
+            }
+        ]
     }
-}
-```
-
-
-#### services.json
-Файл содержит описание сервисов.
-``` 
-{
-  "service_name": [
-    {
-      "destination_port": 443,      // используется, если необходимо уточнить порт службы, необязательное поле
-      "protocol": "tcp",            // название протокола, обазательное поле
-      "comment": "https",           // если порт только один - можно не использоать, необязательное поле
-      "destination_ip": "127.0.0.1" // используется если необходимо ип адрес на котором должна слушать служба, необязательно поле
-    }
-  ]
-}
-```
-
-#### sources.json
-Файл содержит описание источников.
-``` 
-{
-  "source_name": [
-    {
-        "type": "address|group|item", // обязательное поле, возможные значения:
-                                             // address - в этом режиме указывается напрямую ип адрес или подсеть
-                                             // group - в этом режиме указывается группа из inventory
-                                             // item - в этом режиме указывается inventory_hostname
-	    
-        // поля для режима address:
-        "ip": "192.168.79.101",	 // ип адрес источника, обазательное поле (режим address)
-        "comment": "proxmoxdub01" // если источник только один - можно не использоать, необязательное поле
-        
-        // поля для режима group:
-        "group": "proxmoxdub", // указывается группа из inventory, все хосты из этой группы попадут в acl, обязательное поле
-		
-        // поля для режима item:
-        "name": "zabbix", // указывается inventory_hostname
-    }
-  ]
 }
 ```
 *В комментарий для каждого из хостов в режимах ```item``` и ```group``` будут браться значения ```inventory_hostname```*
