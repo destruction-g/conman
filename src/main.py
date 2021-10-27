@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import os, json
+import os
 import sys
 import traceback
 
@@ -10,13 +10,12 @@ from loader import Loader
 def main(argv=sys.argv):
     if len(sys.argv) <= 1:
         return 1
-
     action = str(sys.argv[1])
     loader = Loader();
     configuration = loader.get_configuration()
+    code = 0
     core = Core(configuration)
     try:
-        code = 0
         if action == "print":
             print(configuration)
         elif action == "write_static_inventory_file_for_ansible":
