@@ -39,16 +39,16 @@ class Loader:
             raise
 
         try:
-            yaml_file = self.__loadConfigYAML(os.path.join(configs_directory,  "iptables.yaml"))
-            for parameter_type in yaml_file:
-                configuration[parameter_type] = yaml_file[parameter_type];
+            json_file = self.__loadConfigJSON(os.path.join(configs_directory,  "iptables.json"))
+            for parameter_type in json_file:
+                configuration[parameter_type] = json_file[parameter_type];
         except Exception as e:
             print('[Config.__init__] - failed to read iptables rules from iptables.yml: %s' % e)
             raise
 
         # read main configuration_items:
         try:
-            configuration["configuration_items"] = self.__loadConfigYAML(os.path.join(configs_directory,  "hosts.yaml"))
+            configuration["configuration_items"] = self.__loadConfigJSON(os.path.join(configs_directory,  "hosts.json"))
         except Exception as e:
             print('[Config.__init__] - failed to read configuration items from hosts.yaml: %s' % e)
             raise
