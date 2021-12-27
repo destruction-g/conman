@@ -6,8 +6,13 @@
 ``` git clone https://github.com/destruction-g/conman```  
 ``` cd conman ```  
 
-edit **settings.json** with your favorite editor  
+Настроить пути к конфигурациям в файле ``settings.json``, если необходимо.
 
+Подключить наши [конфиги](https://github.com/destruction-g/conman-configurations).
+
+```git submodule init && git submodule update --remote```  
+or  
+``` git clone --recurse-submodules https://github.com/destruction-g/conman```  
 
 ## Usage
 Запустить тулзу ```./folding.sh [command] [configuration_items]```  
