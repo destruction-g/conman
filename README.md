@@ -18,6 +18,212 @@ or
 Запустить тулзу ```./folding.sh [command] [configuration_items]```  
 Логи ```./folding.log```
 
+## Example
+```
+cat .config/hosts.json
+{
+  "east.internal": {
+    "groups": [
+      "backends",
+      "internal"
+    ],
+    "host_name": "yoba-east",
+    "acls": [
+      "default",
+      "east"
+    ],
+    "alias": [
+      "clickhouse.internal"
+    ],
+    "network_interface": "enp35s0",
+    "ip": "111.111.111.111"
+  },
+  "west.internal": {
+    "groups": [
+      "backends",
+      "internal"
+    ],
+    "host_name": "yoba-west",
+    "acls": [
+      "west",
+      "default"
+    ],
+    "network_interface": "enp7s0",
+    "ip": "222.222.222.222"
+  },
+  "proxy.internal": {
+    "groups": [
+      "proxy",
+      "internal"
+    ],
+    "host_name": "proxy",
+    "acls": [
+      "default",
+      "proxy"
+    ],
+    "ip": "333.333.333.333"
+  },
+}
+```
+***network_interface** - на железных тачках нужно прописывать интерфейс, на виртуалках всех используюется eth0*
+
+```
+cat .config/iptables.json
+{
+  "acls": {
+    "default": {
+      "dns-local": [
+        "localhost"
+      ],
+      "docker": [
+        "internal"
+      ],
+      "ssh": [
+        "internal",
+        "my"
+      ]
+    },
+    "east": {
+      "ssh": ["all"],
+      "fruitmaster_r4": [
+        "localhost",
+        "proxy"
+      ],
+      "clickhouse": [
+        "localhost",
+        "backends",
+        "proxy",
+      ]
+    },
+    "west": {
+      "fruitmaster_r4": [
+        "localhost",
+        "proxy"
+      ],
+    },
+  },
+  "services": {
+    "dns-local": [
+      {
+        "destination_port": 53,
+        "destination_ip": "127.0.0.53",
+        "protocol": "tcp",
+        "comment": "dns"
+      },
+      {
+        "destination_port": 53,
+        "destination_ip": "127.0.0.53",
+        "protocol": "udp",
+        "comment": "dns"
+      }
+    ],
+    "docker": [
+      {
+        "destination_port": 2377,
+        "protocol": "tcp",
+        "comment": "swarm"
+      },
+      {
+        "destination_port": 2376,
+        "protocol": "tcp",
+        "comment": "tls"
+      },
+      {
+        "destination_port": 4789,
+        "protocol": "udp",
+        "comment": "ingress network"
+      },
+      {
+        "destination_port": 7946,
+        "protocol": "tcp",
+        "comment": "network discovery"
+      },
+      {
+        "destination_port": 7946,
+        "protocol": "udp",
+        "comment": "network discovery"
+      }
+    ],
+    "ssh": [
+      {
+        "destination_port": 22,
+        "protocol": "tcp"
+      }
+    ],
+    "fruitmaster_r4": [
+      {
+        "destination_port": 8082,
+        "protocol": "tcp",
+        "comment": "backend"
+      },
+      {
+        "destination_port": 8223,
+        "protocol": "tcp",
+        "comment": "gates"
+      }
+    ],
+    "clickhouse": [
+      {
+        "destination_port": 8123,
+        "protocol": "tcp",
+        "in_docker": true,
+        "comment": "server"
+      },
+      {
+        "destination_port": 9000,
+        "protocol": "tcp",
+        "in_docker": true,
+        "comment": "client"
+      }
+    ],
+  },
+  "sources": {
+    "all": [
+      {
+        "type": "address",
+        "address": "0.0.0.0/0"
+      }
+    ],
+    "localhost": [
+      {
+        "type": "address",
+        "address": "127.0.0.1"
+      }
+    ],
+    "internal": [
+      {
+        "type": "group",
+        "group": "internal"
+      }
+    ],
+    "backends": [
+      {
+        "type": "group",
+        "group": "backends"
+      }
+    ],
+    "proxy": [
+      {
+        "type": "group",
+        "group": "proxy"
+      }
+    ],
+    "my": [
+      {
+        "type": "address",
+        "address": "81.95.134.114"
+      },
+      {
+        "type": "address",
+        "address": "212.13.102.218"
+      }
+    ]
+  }
+}
+```
+``./folding.sh iptables east.internal west.internal proxy.internl ``  
+или  
+``./folding.sh iptables internal``
 
 ## Settings
 Глобальные настройки тулзы ```settings.json```.  
